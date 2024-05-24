@@ -5,9 +5,37 @@
 <head>
     <title>Weather 4 U</title>
     <link rel="shortcut icon" type="image/x-icon" href="w4u.ico">
+    <link rel="stylesheet" href="./style.css">
+    <script src="./base.js"></script>
 </head>
 
 <body>
-    <h1>Weather 4 U</h1>
-    <h2>NWS forecasts you can use.</h2>
+    <div id="header">
+        <h1>Weather 4 U</h1>
+        <h2>NWS forecasts you can use.</h2>
+        <div class="tablink">7-day Forecast</div>
+        <div class="tablink">Overview</div>
+        <div class="tablink">Forecast Discussion</div>
+    </div>
+
+    <div id="tabs-container">
+        <div id="seven-day" class="tabcontent">
+            <div id="period-list">
+                <p>List of periods goes here.</p>
+            </div>
+
+            <div id="details">
+                <p>Details go here.</p>
+            </div>
+        </div>
+
+        <div id="overview" class="tabcontent">
+            <p>overview</p>
+        </div>
+
+        <div id="afd" class="tabcontent">
+            <p>forecast discussion</p>
+        </div>
+    </div>
+
 </body>
