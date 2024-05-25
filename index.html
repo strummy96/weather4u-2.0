@@ -11,17 +11,19 @@
 
 <body>
     <div id="header">
-        <h1>Weather 4 U</h1>
-        <h2>NWS forecasts you can use.</h2>
-        <div class="tablink">7-day Forecast</div>
-        <div class="tablink">Overview</div>
-        <div class="tablink">Forecast Discussion</div>
+        <div>
+            <div style="font-size: 26pt; font-weight: bold;">Weather 4 U</div>
+            <div style="padding: 5px">NWS forecasts you can use.</div>
+        </div>
+        
+        <div class="tablink selected" onclick="make_active('#seven-day', this)">7-day Forecast</div>
+        <div class="tablink" onclick="make_active('#overview', this)">Overview</div>
+        <div class="tablink" onclick="make_active('#afd', this)">Forecast Discussion</div>
     </div>
 
     <div id="tabs-container">
-        <div id="seven-day" class="tabcontent">
+        <div id="seven-day" class="tabcontent active">
             <div id="period-list">
-                <p>List of periods goes here.</p>
             </div>
 
             <div id="details">
@@ -37,5 +39,7 @@
             <p>forecast discussion</p>
         </div>
     </div>
+
+    <script>build_layout()</script>
 
 </body>
