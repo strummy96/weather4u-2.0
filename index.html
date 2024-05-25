@@ -13,30 +13,34 @@
     <div id="header">
         <div>
             <div style="font-size: 26pt; font-weight: bold;">Weather 4 U</div>
-            <div style="padding: 5px">NWS forecasts you can use.</div>
+            <div style="padding: 5px">Forecasts from the National Weather Service.</div>
         </div>
         
-        <div class="tablink selected" onclick="make_active('#seven-day', this)">7-day Forecast</div>
-        <div class="tablink" onclick="make_active('#overview', this)">Overview</div>
-        <div class="tablink" onclick="make_active('#afd', this)">Forecast Discussion</div>
+        <div class="tablink selected" onclick="make_active('#seven-day-tab', this)">7-day Forecast</div>
+        <div class="tablink" onclick="make_active('#overview-tab', this)">Overview</div>
+        <div class="tablink" onclick="make_active('#afd-tab', this)">Forecast Discussion</div>
     </div>
 
     <div id="tabs-container">
-        <div id="seven-day" class="tabcontent active">
-            <div id="period-list">
-            </div>
-
-            <div id="details">
-                <p>Details go here.</p>
+        <div id="seven-day-tab" class="tabcontent active">
+            <div id="seven-day">
+                <div id="period-list">
+                </div>
+    
+                <div id="details">
+                    <p>Details go here.</p>
+                </div>
             </div>
         </div>
 
-        <div id="overview" class="tabcontent">
-            <p>overview</p>
+        <div id="overview-tab" class="tabcontent">
+            <div id="overview">
+                overview
+            </div>
         </div>
 
-        <div id="afd" class="tabcontent">
-            <p>forecast discussion</p>
+        <div id="afd-tab" class="tabcontent">
+            <div id="afd">forecast discussion</div>
         </div>
     </div>
 

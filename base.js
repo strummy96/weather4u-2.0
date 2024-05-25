@@ -57,41 +57,43 @@ async function build_layout() {
             // day div
             let day_div = document.createElement("div");
             day_div.classList.add("day");
+            
+            let period_list = document.querySelector("#period-list");
+            period_list.append(day_div);
 
-            // day pane
-            let day_pane = document.createElement("div");
-            day_pane.classList.add("day-night-pane");
+            // day pane container
+            let pane_con_day = document.createElement("div");
+            pane_con_day.classList.add("pane-container");
 
-            // night pane
-            let night_pane = document.createElement("div");
-            night_pane.classList.add("day-night-pane");
+            // night pane container
+            let pane_con_night = document.createElement("div");
+            pane_con_night.classList.add("pane-container");
+
+            day_div.append(pane_con_day, pane_con_night);
 
             // Add content to panes - first day then night, or just night if the first
             // period is night.
             if (period.isDaytime){
                 // build day pane
-                build_tile_section(day_pane, period, temps, meteocons_day, meteocons_night);
+                build_tile_section(pane_con_day, period, temps, meteocons_day, meteocons_night);
                 // build_accordion_body_section(tile_acc_body, period, h_data, y_scale_max)
 
                 // build night pane unless the day period is the last (number 14)
                 if(period.number < 14){
-                    build_tile_section(night_pane, periods[index + 1], temps, meteocons_day, meteocons_night);
+                    build_tile_section(pane_con_night, periods[index + 1], temps, meteocons_day, meteocons_night);
                     // build_accordion_body_section(tile_acc_body, periods[index + 1], h_data, y_scale_max);
                 };
-
-                // add panes to correct day div
-                day_div.append(day_pane, night_pane);
             }
             else {
-                build_tile_section(night_pane, period, temps, meteocons_day, meteocons_night);
-                day_div.append(night_pane);
+                build_tile_section(pane_con_night, period, temps, meteocons_day, meteocons_night);
                 // let body_sec = build_accordion_body_section(tile_acc_body, period, h_data, y_scale_max);
 
                 // add class to body section to make full width of tile
                 // body_sec.classList.add("single")
             };
-            let period_list = document.querySelector("#period-list");
-            period_list.append(day_div);
+
+
+            // break ////////////////////////////
         }
     }
 }
@@ -115,10 +117,16 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
                     else {return period.probabilityOfPrecipitation.value}})();
 
     // period name i.e. "Tuesday Night"
+    let pname_con = document.createElement("div");
+    pname_con.classList.add("pname-con");
+
     let pname_el = document.createElement("div");
     pname_el.id = "period-name-" + period.number;
+    pname_el.classList.add("pname");
     pname_el.textContent = period.name;
     pname_el.style.padding = "5px";
+
+    pname_con.append(pname_el);
     
     // temperature element - includes wrapper, bar, and text
     temp_el = document.createElement("div");
@@ -246,11 +254,18 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
         cha_prec_el.style.color = "#DEDEDE"
         }
 
-    // add period name, icon, temp, cond to pane
-    parent_el.appendChild(pname_el);
-    parent_el.appendChild(icon_el);
-    parent_el.appendChild(temp_el);
-    parent_el.appendChild(cond_el);
+    let main_pane = document.createElement("div");
+    main_pane.classList.add("main-pane");
+
+    // add period name, icon, temp, cond to main pane
+    main_pane.appendChild(pname_con);
+    main_pane.appendChild(icon_el);
+    main_pane.appendChild(temp_el);
+
+    let detail_pane = document.createElement("div");
+    detail_pane.classList.add("detail-pane");
+    detail_pane.append(cond_el);
+    parent_el.append(main_pane, detail_pane);
 }
 
 function make_active(id, tablink) {
@@ -297,6 +312,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
         // when 2 icons are added to it
         let icons_con = document.createElement("div");
         icons_con.style.height = "100%";
+        icons_con.style.width = "100%";
 
         // split shortForecast text on "then"
         let sFore_split = period.shortForecast.split(" then ");
@@ -305,23 +321,23 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
 
         let icon_img_top = document.createElement("div");
         icon_img_top.style.height = "50%";
+        icon_img_top.style.width = "100%";
         icon_img_top.style.display = "flex";
         icon_img_top.style.justifyContent = "left";
 
         let icon_top_1 = document.createElement("img");
-        icon_top_1.height = "50%";
-        // icon_top_1.width = "50%";
+        icon_top_1.classList.add("icon-img");
         icon_top_1.src = get_icon(cond_1, period.isDaytime, meteocons_day, meteocons_night);
         icon_img_top.appendChild(icon_top_1);
 
         let icon_img_bottom = document.createElement("div");
         icon_img_bottom.style.height = "50%";
+        icon_img_bottom.style.width = "100%";
         icon_img_bottom.style.display = "flex";
         icon_img_bottom.style.justifyContent = "right";
         
         let icon_bot_2 = document.createElement("img");
-        icon_bot_2.height = "50%";
-        // icon_bot_2.width = "50%";
+        icon_bot_2.classList.add("icon-img");
         icon_bot_2.src = get_icon(cond_2, period.isDaytime, meteocons_day, meteocons_night);
         icon_img_bottom.appendChild(icon_bot_2);
 
