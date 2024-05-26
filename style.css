@@ -1,6 +1,7 @@
 body {
     font-family: 'Work Sans', sans-serif;
-    background-color: #4992d1;
+    /* background-color: #4992d1; */
+    background-color: #274b69;
     color: white;
     height: 100vh;
     margin: 0px;
@@ -30,7 +31,8 @@ body {
 }
 
 .day {
-    height: 14%;
+    height: 13%;
+    margin: 0.5% 0;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -49,7 +51,7 @@ body {
     overflow: hidden;
     padding: 3px;
     border-radius: 1vh;
-    background-color: #89b1d4;
+    background-color: #5483ac;
 }
 
 .main-pane {
@@ -130,11 +132,19 @@ body {
     font-size: 1vw;
 }
 
+.detail-section {
+    display: none;
+}
+
+.detailed-forecast {
+    font-size: 16pt;
+}
+
 #header {
     display: flex;
     flex-direction: row;
     align-items: center;
-    background-color: #89b1d4;
+    background-color: #4992d1;
     padding-left: 5px;
     height: 10vh;
 }
@@ -161,4 +171,8 @@ body {
     display: flex;
     flex-direction: column;
     width: 50%;
+    padding: 0px 10px;
+    margin: 10px;
+    border: 2px solid #89b1d4;
+    border-radius: 1vh;
 }

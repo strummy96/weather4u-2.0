@@ -1,3 +1,6 @@
+// Client-side JS for Weather 4 U 2.0
+//
+// Seth Strumwasser
 
 // Fetch data and try again until it succeeds. NWS API often returns
 // Error 500.
@@ -53,6 +56,15 @@ async function build_layout() {
 
             // temps for max and min
             let temps = data.properties.periods.map(({temperature}) => temperature);
+            let chance_precips = data.properties.periods.map(
+                ({probabilityOfPrecipitation}) => probabilityOfPrecipitation.value);
+            
+            // get max values to set scale range - want this to be the same for side-by-side periods
+            let ymax_temp = Math.max(...temps.filter((temp) => !isNaN(temp)));
+            let ymax_prec = Math.max(...chance_precips.filter((cp) => !isNaN(cp)));
+
+            let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
+            console.log("y_scale_max: ", y_scale_max);
 
             // day div
             let day_div = document.createElement("div");
@@ -64,10 +76,15 @@ async function build_layout() {
             // day pane container
             let pane_con_day = document.createElement("div");
             pane_con_day.classList.add("pane-container");
+            pane_con_day.id = "period-" + period.number;
+            pane_con_day.onclick = function(){show_details(pane_con_day)};
 
             // night pane container
             let pane_con_night = document.createElement("div");
             pane_con_night.classList.add("pane-container");
+            if(period.number == 1){pane_con_night.id = "period-" + period.number}
+            else{pane_con_night.id = "period-" + (period.number + 1)};            
+            pane_con_night.onclick = function(){show_details(pane_con_night)};
 
             day_div.append(pane_con_day, pane_con_night);
 
@@ -76,20 +93,23 @@ async function build_layout() {
             if (period.isDaytime){
                 // build day pane
                 build_tile_section(pane_con_day, period, temps, meteocons_day, meteocons_night);
-                // build_accordion_body_section(tile_acc_body, period, h_data, y_scale_max)
+                
+                // detail section
+                build_detail_section(period, h_data, y_scale_max)
 
                 // build night pane unless the day period is the last (number 14)
                 if(period.number < 14){
                     build_tile_section(pane_con_night, periods[index + 1], temps, meteocons_day, meteocons_night);
-                    // build_accordion_body_section(tile_acc_body, periods[index + 1], h_data, y_scale_max);
+                    
+                    // detail section
+                    build_detail_section(periods[index + 1], h_data, y_scale_max)
                 };
             }
             else {
                 build_tile_section(pane_con_night, period, temps, meteocons_day, meteocons_night);
-                // let body_sec = build_accordion_body_section(tile_acc_body, period, h_data, y_scale_max);
 
-                // add class to body section to make full width of tile
-                // body_sec.classList.add("single")
+                // detail section
+                build_detail_section(period, h_data, y_scale_max)
             };
 
 
@@ -165,9 +185,9 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     temp_text.classList.add("temp-text");
     temp_text.innerHTML = period.temperature + "&deg;";
 
-    // appending children - leaving out bar for now
-    temp_wrapper.appendChild(temp_text);
-    temp_el.appendChild(temp_wrapper);  
+    // appending ren - leaving out bar for now
+    temp_wrapper.append(temp_text);
+    temp_el.append(temp_wrapper);  
 
     // icon
     icon_el = document.createElement("div");
@@ -187,9 +207,9 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     //     icon_cha_prec_text.classList.add("icon-cha-prec-text");
     //     icon_cha_prec_text.textContent = cha_prec_text + "%";
 
-    //     // icon_cha_prec.appendChild(raindrop);
-    //     icon_cha_prec.appendChild(icon_cha_prec_text);
-    //     icon_el.appendChild(icon_cha_prec);
+    //     // icon_cha_prec.append(raindrop);
+    //     icon_cha_prec.append(icon_cha_prec_text);
+    //     icon_el.append(icon_cha_prec);
     // }
 
     // short forecast (conditions)
@@ -202,7 +222,7 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     cond_el.style.display = "flex";
     cond_el.style.alignItems = "center";
     cond_el.style.width = "50%";
-    cond_el.appendChild(cond_text);
+    cond_el.append(cond_text);
 
     // relative humidity
     rel_hum_el = document.createElement("div");
@@ -224,9 +244,9 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     let rel_hum_text_el = document.createElement("div");
     rel_hum_text_el.textContent = rel_hum_text + " %";
 
-    rel_hum_wrapper.appendChild(rel_hum_circle);
-    rel_hum_wrapper.appendChild(rel_hum_text_el);
-    rel_hum_el.appendChild(rel_hum_wrapper);
+    rel_hum_wrapper.append(rel_hum_circle);
+    rel_hum_wrapper.append(rel_hum_text_el);
+    rel_hum_el.append(rel_hum_wrapper);
 
     // wind
     wind_el = document.createElement("div");
@@ -242,8 +262,8 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     wind_speed.style.textAlign = "center";
     wind_speed.style.flexGrow = 1;
 
-    wind_el.appendChild(wind_dir)
-    wind_el.appendChild(wind_speed)
+    wind_el.append(wind_dir)
+    wind_el.append(wind_speed)
 
     // chance of precipitation
     cha_prec_el = document.createElement("div");
@@ -258,9 +278,9 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     main_pane.classList.add("main-pane");
 
     // add period name, icon, temp, cond to main pane
-    main_pane.appendChild(pname_con);
-    main_pane.appendChild(icon_el);
-    main_pane.appendChild(temp_el);
+    main_pane.append(pname_con);
+    main_pane.append(icon_el);
+    main_pane.append(temp_el);
 
     let detail_pane = document.createElement("div");
     detail_pane.classList.add("detail-pane");
@@ -328,7 +348,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
         let icon_top_1 = document.createElement("img");
         icon_top_1.classList.add("icon-img");
         icon_top_1.src = get_icon(cond_1, period.isDaytime, meteocons_day, meteocons_night);
-        icon_img_top.appendChild(icon_top_1);
+        icon_img_top.append(icon_top_1);
 
         let icon_img_bottom = document.createElement("div");
         icon_img_bottom.style.height = "50%";
@@ -339,15 +359,15 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
         let icon_bot_2 = document.createElement("img");
         icon_bot_2.classList.add("icon-img");
         icon_bot_2.src = get_icon(cond_2, period.isDaytime, meteocons_day, meteocons_night);
-        icon_img_bottom.appendChild(icon_bot_2);
+        icon_img_bottom.append(icon_bot_2);
 
-        icons_con.appendChild(icon_img_top);
-        icons_con.appendChild(icon_img_bottom);
+        icons_con.append(icon_img_top);
+        icons_con.append(icon_img_bottom);
 
         icon_img = icons_con;
     }
 
-    icon_el.appendChild(icon_img);
+    icon_el.append(icon_img);
 
     return icon_el;
 }
@@ -369,4 +389,212 @@ function get_icon(shortForecast, isDaytime, meteocons_day, meteocons_night){
             return "./meteocons/code-red.png"
         }
     }
+}
+
+function build_detail_section(period, hourly_data, y_scale_max) {
+    let detail_pane = document.querySelector("#details");
+    
+    let detail_section = document.createElement("div");
+    detail_section.id = "detail-" + period.number;
+    detail_section.classList.add("detail-section");
+
+    // title
+    let p_title = document.createElement("div");
+    p_title.textContent = period.name;
+    p_title.style.fontSize = "20pt";
+    p_title.style.padding = "10px 0px";
+
+    // detailed forecast
+    let dFore = document.createElement("div");
+    dFore.textContent = period.detailedForecast;
+    dFore.classList.add("detailed-forecast");
+
+    // graph
+    let graph_el = document.createElement("div");
+    graph_el.id = "graph-" + period.number;
+    graph_el.classList.add("graph-div");
+        
+    detail_section.append(p_title);
+    detail_section.append(dFore);
+    detail_section.append(graph_el);
+    detail_pane.append(detail_section);
+
+    hourly_chart(hourly_data.properties.periods, period, y_scale_max)
+
+    return detail_section;
+
+}
+
+function hourly_chart(h_periods, period, y_scale_max) {
+
+    console.log("hourly_chart()")
+    
+    let period_number = period.number;
+
+    let canv = document.createElement("canvas");
+    canv.classList.add("chart-canvas");
+    let graph_div = document.querySelector("#graph-" + period_number);
+    graph_div.appendChild(canv);
+
+    // set up datasets
+    //
+    // get hourly forecasts for the current period
+    let period_start_time = period.startTime;
+    let period_end_time = period.endTime;
+
+    // get first index
+    let hour_indices_start;
+    if(period.number == 1){
+        hour_indices_start = 0;
+    } else {
+        // filter returns an array, so we get the first item in that array
+        let period_start_hour_array = h_periods.filter((h_period) => h_period.startTime == period_start_time)[0];
+        hour_indices_start = h_periods.indexOf(period_start_hour_array) - 1;
+    }
+
+    // get last index
+    // filter returns an array, so we get the first item in that array
+    let period_end_hour_array = h_periods.filter((h_period) => h_period.startTime == period_end_time)[0];
+    let hour_indices_end = h_periods.indexOf(period_end_hour_array) - 1;
+
+    let hourly_periods = h_periods.slice(hour_indices_start, hour_indices_end);
+    if(hourly_periods.length == 0){hourly_periods = [h_periods[0]]};
+
+    // get temperature and time for each hour
+    let temps = []
+    let times = []
+    let chance_precips = []
+    for(period of hourly_periods) {
+        temps.push(period.temperature);
+        times.push(period.startTime);
+        let cha_prec = (() => {if(period.probabilityOfPrecipitation.value==0) {return NaN} 
+                    else {return period.probabilityOfPrecipitation.value}})();
+        // let cha_prec = period.probabilityOfPrecipitation.value;
+        chance_precips.push(cha_prec);
+    }
+    console.log(temps);
+    console.log(times);
+    console.log(chance_precips);
+
+    // get times as HHam/HHpm
+    let times_pretty = [];
+    for(time of times){
+        // get time from period.startTime
+        let date_ts = Date.parse(time);
+        let date = new Date(date_ts);
+        let hour24 = date.getHours() + 1;
+        let am_pm = "am";
+        let hour = hour24;
+        if(hour24 > 12){hour = hour24 - 12; am_pm = "pm"};
+        times_pretty.push(hour + am_pm)
+    }
+
+    // fill in NAs for time spans that are not full. For the first period (coinciding with right now) there
+    // may not be 12 hours worth of data. Want to make the chart look the same anyway (with no bars for missing hours).
+    if (times_pretty.length < 12) {
+        let num_missing = 12 - times_pretty.length;
+        for(i of [...Array(num_missing).keys()]) {
+            let z = 12 - num_missing - i;
+            times_pretty.splice(0, 0, '');
+            temps.splice(0, 0, NaN);
+            chance_precips.splice(0, 0, NaN);
+        }
+    }
+
+    // build chart
+    Chart.defaults.color = "white";
+    Chart.defaults.backgroundColor = "rgba(255, 255, 255, 0.25)";
+    Chart.register(ChartDataLabels);
+
+    console.log("Build chart")
+    new Chart(canv,
+        {
+            type: "bar",
+            data: {
+                labels: times_pretty,
+                datasets: [{
+                    label: "Temp",
+                    data: temps
+                },
+                {
+                    label: "Precip",
+                    data: chance_precips,
+                    type: "line",
+                    borderColor: "#7ad0f0"
+                }
+            ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                // interaction: {
+                //     intersect: false,
+                //     mode: 'index',
+                // },
+                color: "white",
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                            drawOnChartArea: false
+                        }
+                    },
+                    y: {
+                        grid: {
+                            display: false
+                        },
+                        display: false,
+                        max: y_scale_max
+                    }
+                },
+                plugins: {
+                    datalabels: {
+                        color: function(context) {
+                            return context.dataset.borderColor;
+                        },
+                        // color: "white",
+                        anchor: "end",
+                        align: "end",
+                        offset: 2,
+                        formatter: (value, context) => { 
+                            if (context.dataset.label == "Temp"){
+                                return !isNaN(value) ? value + "°" : '' ;
+                            } else {
+                                return !isNaN(value) ? value + "%" : '' ;
+                            }
+                        },
+                    },
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: false,
+                        text: "Hourly Forecast"
+                    }
+                },
+                animation: false,
+                layout: {
+                    padding: {
+                        top: 10
+                    }
+                }
+            }
+        }
+    )
+}
+
+function show_details(pane) {
+    console.log("pane")
+    console.log(pane)
+    console.log("show_details()")
+    let period_num = pane.id.split("-")[1]
+    console.log(period_num)
+
+    // hide detail sectios
+    let d_sections = document.querySelectorAll(".detail-section");
+    d_sections.forEach((el) => {el.style.display = "none"})
+
+    // show detail section
+    let detail_section = document.querySelector("#detail-" + period_num);
+    detail_section.style.display = "block";
 }
