@@ -12,19 +12,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 
-    <script src="./base.js"></script>
+    <script src="./js/papaparse.min.js"></script>
+    <script src="./js/base.js"></script>
 </head>
 
 <body>
     <div id="header">
         <div>
             <div style="font-size: 26pt; font-weight: bold;">Weather 4 U</div>
-            <div style="padding: 5px">Forecasts from the National Weather Service.</div>
+            <div style="padding: 5px; font-size: 1.2vw;">Forecasts from the National Weather Service.</div>
         </div>
         
         <div class="tablink selected" onclick="make_active('#seven-day-tab', this)">7-day Forecast</div>
         <div class="tablink" onclick="make_active('#overview-tab', this)">Overview</div>
         <div class="tablink" onclick="make_active('#afd-tab', this)">Forecast Discussion</div>
+
+        <div id="location-div">
+            <input type="text" placeholder="Enter city..." id="location-input" 
+            list="cities_list" onkeydown=enter_loc()>
+            <datalist id="cities_list"></datalist>
+            <button id="go-button" onclick="update_data()" disabled>Go</button>
+            <img src="spinner.gif" alt="Spinning loading gif" id="spinner">
+        </div>
     </div>
 
     <div id="tabs-container">
@@ -34,6 +43,7 @@
                 </div>
     
                 <div id="details">
+                    <div id="details-default" class="detail-section">Click a day/night to see more forecast information.</div>
                 </div>
             </div>
         </div>

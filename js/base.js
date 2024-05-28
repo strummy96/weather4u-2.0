@@ -2,6 +2,8 @@
 //
 // Seth Strumwasser
 
+let cities;
+
 // Fetch data and try again until it succeeds. NWS API often returns
 // Error 500.
 async function fetch_data(url) {
@@ -64,7 +66,6 @@ async function build_layout() {
             let ymax_prec = Math.max(...chance_precips.filter((cp) => !isNaN(cp)));
 
             let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
-            console.log("y_scale_max: ", y_scale_max);
 
             // day div
             let day_div = document.createElement("div");
@@ -82,7 +83,7 @@ async function build_layout() {
             // night pane container
             let pane_con_night = document.createElement("div");
             pane_con_night.classList.add("pane-container");
-            if(period.number == 1){pane_con_night.id = "period-" + period.number}
+            if(period.number == 1 && !period.isDaytime){pane_con_night.id = "period-" + period.number}
             else{pane_con_night.id = "period-" + (period.number + 1)};            
             pane_con_night.onclick = function(){show_details(pane_con_night)};
 
@@ -426,8 +427,6 @@ function build_detail_section(period, hourly_data, y_scale_max) {
 }
 
 function hourly_chart(h_periods, period, y_scale_max) {
-
-    console.log("hourly_chart()")
     
     let period_number = period.number;
 
@@ -472,9 +471,9 @@ function hourly_chart(h_periods, period, y_scale_max) {
         // let cha_prec = period.probabilityOfPrecipitation.value;
         chance_precips.push(cha_prec);
     }
-    console.log(temps);
-    console.log(times);
-    console.log(chance_precips);
+    // console.log(temps);
+    // console.log(times);
+    // console.log(chance_precips);
 
     // get times as HHam/HHpm
     let times_pretty = [];
@@ -506,7 +505,6 @@ function hourly_chart(h_periods, period, y_scale_max) {
     Chart.defaults.backgroundColor = "rgba(255, 255, 255, 0.25)";
     Chart.register(ChartDataLabels);
 
-    console.log("Build chart")
     new Chart(canv,
         {
             type: "bar",
@@ -584,11 +582,7 @@ function hourly_chart(h_periods, period, y_scale_max) {
 }
 
 function show_details(pane) {
-    console.log("pane")
-    console.log(pane)
-    console.log("show_details()")
     let period_num = pane.id.split("-")[1]
-    console.log(period_num)
 
     // hide detail sectios
     let d_sections = document.querySelectorAll(".detail-section");
@@ -597,4 +591,134 @@ function show_details(pane) {
     // show detail section
     let detail_section = document.querySelector("#detail-" + period_num);
     detail_section.style.display = "block";
+}
+
+async function update_data() {
+    console.log("Updating data")
+    // make loading icon visible
+    let spinner = document.querySelector("#spinner");
+    spinner.style.display = "block";
+
+    // get value of location input
+    let loc_in = document.querySelector("#location-input");
+    let new_loc = loc_in.value;
+    let new_cities = await cities;
+
+    // get coordinates of location
+    let new_loc_split = new_loc.split(", ");
+    let new_city_name = new_loc_split[0];
+    let new_state_name = new_loc_split[1];
+    let new_city = new_cities.data.filter(
+        (city) => (city[0] == new_city_name && city[1] == new_state_name));
+    console.log(new_city)
+
+    let new_lat = new_city[0][2];
+    let new_lon = new_city[0][3];
+
+    // construct new URL
+    // use api to get grid nums of new lat lon
+    let new_points_url = "https://api.weather.gov/points/" + new_lat + "," + new_lon;
+    console.log(new_points_url)
+
+    // fetch data
+    let new_points_resp = await fetch(new_points_url);
+    let new_points_data = await new_points_resp.json();
+    let new_url = new_points_data.properties.forecast;
+    console.log(new_url);
+
+    let new_data_resp = await fetch(new_url);
+    let new_data = await new_data_resp.json();
+    console.log(new_data)
+
+    let new_periods = new_data.properties.periods;
+
+    // hourly
+    let new_h_periods_resp = await fetch(new_url + "/hourly");
+    let new_h_periods = await new_h_periods_resp.json();
+
+    // update page elements
+    for(nPeriod of new_periods) {
+
+        // icon
+        let icon_el = document.querySelector("#icon-" + nPeriod.number);
+        build_icon(nPeriod, icon_el, meteocons_day, meteocons_night);
+
+
+        // temperature
+        let temp_text = document.querySelector("#temp-" + nPeriod.number);
+        temp_text.innerHTML = nPeriod.temperature + "&deg;"
+
+        // temps for max and min
+        let temps = new_data.properties.periods.map(({temperature}) => temperature);
+        let chance_precips = new_data.properties.periods.map(
+            ({probabilityOfPrecipitation}) => probabilityOfPrecipitation.value);
+
+        // get max values to set scale range - want this to be the same for side-by-side periods
+        let ymax_temp = Math.max(...temps.filter((temp) => !isNaN(temp)));
+        let ymax_prec = Math.max(...chance_precips.filter((cp) => !isNaN(cp)));
+
+        let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
+
+
+        // conditions
+        let cond_text = document.querySelector("#cond-" + nPeriod.number);
+        cond_text.innerHTML = nPeriod.shortForecast;
+
+
+        // graph
+        //
+        // clear graph
+        let graph_div = document.querySelector("#graph-" + nPeriod.number);
+        graph_div.innerHTML = "";
+        hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
+
+        // detailed forecast
+        let det_fc = document.querySelector(".details-" + nPeriod.number + " #detailed-forecast");
+        det_fc.textContent = nPeriod.detailedForecast;
+    }    
+
+    // disable loader
+    spinner.style.display = "none";
+    console.log("done updating data")
+}
+
+async function get_cities() {
+    // cities data
+    const city_fetch = await fetch("./data/city_coords.csv");
+    const city_body = await city_fetch.text();
+    cities = Papa.parse(city_body);
+
+    // activate city search button
+    let go = document.querySelector("#go-button");
+    go.disabled = false;
+
+    // add cities to datalist
+    let datalist = document.querySelector("#cities_list");
+    let html_str = ""
+    for(city of cities.data){
+        if(!city.includes("city")){
+        html_str += "<option>" + city[0] + ", " + city[1] + "</option>";
+        }
+    }
+
+    datalist.innerHTML = html_str;
+
+    console.log("cities");
+    console.log(cities);
+
+    return cities;
+} get_cities()
+
+async function enter_loc() {
+    if(event.key == "Enter") {
+        let loc_in = document.querySelector("#location-input");
+        let in_text = loc_in.value;
+        console.log(await cities)
+        let cities_resolved = await cities;
+        
+            if(cities.data.includes(in_text)){
+                loc_in.value = city[0] + ", " + city[1];
+            }
+        update_data(cities)
+    }
 }
