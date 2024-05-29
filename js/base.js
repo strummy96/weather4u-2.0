@@ -143,8 +143,22 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
 
     let pname_el = document.createElement("div");
     pname_el.id = "period-name-" + period.number;
+    let mapObj = {
+        Monday: "Mon",
+        Tuesday: "Tues",
+        Wednesday: "Wed",
+        Thursday: "Thurs",
+        Friday: "Fri",
+        Saturday: "Sat",
+        Sunday: "Sun"
+    }
     pname_el.classList.add("pname");
-    pname_el.textContent = period.name;
+
+    re = new RegExp(Object.keys(mapObj).join("|"),"gi"); 
+    pname_el.textContent = period.name.replace(re, function(matched){
+        return mapObj[matched];
+      });
+
     pname_el.style.padding = "5px";
 
     pname_con.append(pname_el);
@@ -282,11 +296,14 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     main_pane.append(pname_con);
     main_pane.append(icon_el);
     main_pane.append(temp_el);
+    
+    parent_el.append(main_pane);
 
     let detail_pane = document.createElement("div");
     detail_pane.classList.add("detail-pane");
+    detail_pane.style.height = main_pane.clientHeight * 0.4
     detail_pane.append(cond_el);
-    parent_el.append(main_pane, detail_pane);
+    main_pane.append(detail_pane);
 }
 
 function make_active(id, tablink) {
@@ -347,7 +364,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
         icon_img_top.style.justifyContent = "left";
 
         let icon_top_1 = document.createElement("img");
-        icon_top_1.classList.add("icon-img");
+        icon_top_1.classList.add("icon-img", "icon-img-multiple");
         icon_top_1.src = get_icon(cond_1, period.isDaytime, meteocons_day, meteocons_night);
         icon_img_top.append(icon_top_1);
 
@@ -358,7 +375,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
         icon_img_bottom.style.justifyContent = "right";
         
         let icon_bot_2 = document.createElement("img");
-        icon_bot_2.classList.add("icon-img");
+        icon_bot_2.classList.add("icon-img", "icon-img-multiple");
         icon_bot_2.src = get_icon(cond_2, period.isDaytime, meteocons_day, meteocons_night);
         icon_img_bottom.append(icon_bot_2);
 
@@ -673,7 +690,8 @@ async function update_data() {
         hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
 
         // detailed forecast
-        let det_fc = document.querySelector(".details-" + nPeriod.number + " #detailed-forecast");
+        console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
+        let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
         det_fc.textContent = nPeriod.detailedForecast;
     }    
 
