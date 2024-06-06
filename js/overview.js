@@ -64,8 +64,14 @@ async function overview(h_data) {
     }
 
     // let ymax = Math.max(temps) + 0.1 * Math.max(temps);
-    let ymax = Math.max(...temps.filter((temp) => !isNaN(temp)));
-    let y_scale_max = ymax + 10;
+    // let ymax = Math.max(...temps.filter((temp) => !isNaN(temp)));
+    // let y_scale_max = ymax + 10;
+
+    // get max values to set scale range
+    let ymax_temp = Math.max(...temps.filter((temp) => !isNaN(temp)));
+    let ymax_prec = Math.max(...chance_precips.filter((cp) => !isNaN(cp)));
+
+    let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
 
     // build chart
     let main_blue = "#4992d1";
@@ -75,26 +81,6 @@ async function overview(h_data) {
     Chart.register(ChartDataLabels);
     // Chart.register(annotationPlugin);
 
-    // from stackOverflow
-    // var parentEventHandler = Chart.prototype._eventHandler;
-    // Chart.prototype._eventHandler = function() {
-    //     var ret = parentEventHandler.apply(this, arguments);
-        
-    //     this.clear();
-    //     this.draw();
-        
-    //     var yScale = this.scales.y;
-        
-    //         // Draw the vertical line here
-    //     var eventPosition = Chart.helpers.getRelativePosition(arguments[0], this.chart);
-    //     this.ctx.beginPath();
-    //     this.ctx.moveTo(eventPosition.x, yScale.getPixelForValue(yScale.max));
-    //     this.ctx.strokeStyle = "white";
-    //     this.ctx.lineTo(eventPosition.x, yScale.getPixelForValue(yScale.min));
-    //     this.ctx.stroke();
-
-    //     return ret;
-    // };
 
     const overview_chart = new Chart(canv,
         {
