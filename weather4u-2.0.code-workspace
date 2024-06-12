@@ -7,5 +7,7 @@
 			"path": "../websites/weather4u"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "weather4u-2.0"
+	}
 }

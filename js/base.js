@@ -420,6 +420,17 @@ function build_detail_section(period, hourly_data, y_scale_max) {
     detail_section.id = "detail-" + period.number;
     detail_section.classList.add("detail-section");
 
+    // back button (for mobile)
+    let back_btn = document.createElement("button");
+    back_btn.id = 'detail-back-btn';
+    back_btn.textContent = "Back";
+    back_btn.onclick = function(){
+        detail_pane.classList.toggle("mobile-hide");
+        let period_list = document.querySelector("#period-list");
+        period_list.classList.toggle("mobile-hide");
+    }
+    detail_section.append(back_btn);
+
     // title
     let p_title = document.createElement("div");
     p_title.textContent = period.name;
@@ -605,13 +616,21 @@ function hourly_chart(h_periods, period, y_scale_max) {
 function show_details(pane) {
     let period_num = pane.id.split("-")[1]
 
-    // hide detail sectios
+    // hide detail sections
     let d_sections = document.querySelectorAll(".detail-section");
     d_sections.forEach((el) => {el.style.display = "none"})
 
     // show detail section
     let detail_section = document.querySelector("#detail-" + period_num);
     detail_section.style.display = "block";
+
+    // add class to tile section to hide on mobile
+    let tile_section = document.querySelector("#period-list");
+    tile_section.classList.add("mobile-hide");
+
+    // remove class from details pane
+    let details_pane = document.querySelector("#details");
+    details_pane.classList.toggle("mobile-hide");
 }
 
 async function update_data() {
