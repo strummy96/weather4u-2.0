@@ -136,8 +136,9 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     let cha_prec_el;
     let cond_el;
 
-    const rel_hum_text = (() => {if(period.relativeHumidity.value==null) {return "0"} 
-                    else {return period.relativeHumidity.value}})();
+    // Relative Humidity removed June 20th, 2024 because it does not match 12-hour period
+    // const rel_hum_text = (() => {if(period.relativeHumidity.value==null) {return "0"} 
+    //                 else {return period.relativeHumidity.value}})();
     const cha_prec_text = (() => {if(period.probabilityOfPrecipitation.value==null) {return "0"} 
                     else {return period.probabilityOfPrecipitation.value}})();
 
@@ -242,30 +243,6 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     cond_el.style.alignItems = "center";
     cond_el.style.width = "50%";
     cond_el.append(cond_text);
-
-    // relative humidity
-    rel_hum_el = document.createElement("div");
-    rel_hum_el.classList.add("data");
-
-    let rel_hum_wrapper = document.createElement("div");
-    rel_hum_wrapper.style.width = "100%";
-    rel_hum_wrapper.style.display = "flex";
-    rel_hum_wrapper.style.justifyContent = "center";
-    rel_hum_wrapper.style.gap = "10px";
-    rel_hum_wrapper.style.alignItems = "center";
-    
-    let rel_hum_circle = document.createElement("div");
-    rel_hum_circle.classList.add("circle");
-    // rel_hum_circle.style.backgroundColor = getColorHumidity(Number(period.relativeHumidity.value));
-    rel_hum_circle.style.width = "0.8em";
-    rel_hum_circle.style.height = rel_hum_circle.style.width;
-
-    let rel_hum_text_el = document.createElement("div");
-    rel_hum_text_el.textContent = rel_hum_text + " %";
-
-    rel_hum_wrapper.append(rel_hum_circle);
-    rel_hum_wrapper.append(rel_hum_text_el);
-    rel_hum_el.append(rel_hum_wrapper);
 
     // wind
     wind_el = document.createElement("div");
