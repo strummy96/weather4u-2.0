@@ -33,15 +33,19 @@ async function build_layout() {
     meteocons_day = meteocons["meteocons_day"];
     meteocons_night = meteocons["meteocons_night"];
 
+    // GRIDPOINTS
+    // WAKEFIELD RI - 64,46
+    // SOMERVILLE, MA - 70,91
+
     // hourly forecast data
-    wakefield_hourly_url = "https://api.weather.gov/gridpoints/BOX/64,46/forecast/hourly";
+    wakefield_hourly_url = "https://api.weather.gov/gridpoints/BOX/70,91/forecast/hourly";
     h_data = await fetch_data(wakefield_hourly_url);
     // const h_data = await h_resp.json();
     console.log("hourly forecast data");
     console.log(h_data);
     
     // forecast data
-    let wakefield_url = "https://api.weather.gov/gridpoints/BOX/64,46/forecast";
+    let wakefield_url = "https://api.weather.gov/gridpoints/BOX/70,91/forecast";
     const data = await fetch_data(wakefield_url);
     // const data = await resp.json();
     console.log("7 day forecast data");
