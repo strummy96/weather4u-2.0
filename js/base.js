@@ -5,6 +5,16 @@
 let cities;
 let h_data;
 
+const day_abr = {
+    Monday: "Mon",
+    Tuesday: "Tues",
+    Wednesday: "Wed",
+    Thursday: "Thurs",
+    Friday: "Fri",
+    Saturday: "Sat",
+    Sunday: "Sun"
+}
+
 // Fetch data and try again until it succeeds. NWS API often returns
 // Error 500.
 async function fetch_data(url) {
@@ -152,20 +162,11 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
 
     let pname_el = document.createElement("div");
     pname_el.id = "period-name-" + period.number;
-    let mapObj = {
-        Monday: "Mon",
-        Tuesday: "Tues",
-        Wednesday: "Wed",
-        Thursday: "Thurs",
-        Friday: "Fri",
-        Saturday: "Sat",
-        Sunday: "Sun"
-    }
     pname_el.classList.add("pname");
 
-    re = new RegExp(Object.keys(mapObj).join("|"),"gi"); 
+    re = new RegExp(Object.keys(day_abr).join("|"),"gi"); 
     pname_el.textContent = period.name.replace(re, function(matched){
-        return mapObj[matched];
+        return day_abr[matched];
       });
 
     pname_el.style.padding = "5px";
@@ -661,10 +662,16 @@ async function update_data() {
     // update page elements
     for(nPeriod of new_periods) {
 
+        // period names
+        let pname_el = document.querySelector("#period-name-" + nPeriod.number);
+        re = new RegExp(Object.keys(day_abr).join("|"),"gi"); 
+        pname_el.textContent = nPeriod.name.replace(re, function(matched){
+            return day_abr[matched];
+        });
+
         // icon
         let icon_el = document.querySelector("#icon-" + nPeriod.number);
         build_icon(nPeriod, icon_el, meteocons_day, meteocons_night);
-
 
         // temperature
         let temp_text = document.querySelector("#temp-" + nPeriod.number);

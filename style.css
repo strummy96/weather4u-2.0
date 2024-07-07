@@ -243,6 +243,10 @@ body {
     display: none;
 }
 
+#menu-dropdown {
+    display: none;
+}
+
 @media (width <= 800px) {
     #details {
         width: 100%;
@@ -286,5 +290,9 @@ body {
 
     .detail-section {
         height: 100%;
+    }
+
+    #menu-dropdown {
+        display: block;
     }
 }

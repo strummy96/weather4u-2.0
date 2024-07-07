@@ -52,14 +52,14 @@ function overview(h_data) {
         let date_ts = Date.parse(time);
         let date = new Date(date_ts);
         let hour24 = date.getHours();
-        console.log("hour24:", hour24)
+        // console.log("hour24:", hour24)
         let am_pm = "am";
         let hour = hour24;
         if(hour24 > 12){ hour = hour24 - 12; };
         if(hour24 == 0){ hour = 12; };
         if(hour24 >= 12 && hour24 != 24){ am_pm = "pm"; };
         times_pretty.push(hour + am_pm)
-        console.log("hour:", hour)
+        // console.log("hour:", hour)
     }
 
     // labels so we can have days labeled too
@@ -88,7 +88,6 @@ function overview(h_data) {
     Chart.register("chartjs-plugin-annotation");
 
     // build day box annotations
-    console.log(times_pretty_with_days)
     let day_annotations = [];
     let prev_day = times_pretty_with_days[0].split(";")[1];
     let draw_box = true; // toggler for alternating boxes
@@ -98,8 +97,6 @@ function overview(h_data) {
         let xMax;
         if (day != prev_day) {
             xMin = times_pretty_with_days.indexOf(time);
-            console.log(time)
-            console.log(xMin)
             if(draw_box){
                 // if draw_box is true, add annotaiton to list
                 day_annotations.push({
