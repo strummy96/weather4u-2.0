@@ -497,7 +497,8 @@ function hourly_chart(h_periods, period, y_scale_max) {
         let hour24 = date.getHours() + 1;
         let am_pm = "am";
         let hour = hour24;
-        if(hour24 > 12){hour = hour24 - 12; am_pm = "pm"};
+        if(hour24 > 12){ hour = hour24 - 12; };
+        if(hour24 >= 12 && hour24 != 24){ am_pm = "pm"; };
         times_pretty.push(hour + am_pm)
     }
 

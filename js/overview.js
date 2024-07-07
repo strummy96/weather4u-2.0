@@ -8,7 +8,7 @@ let dows = {
     6: "Saturday"
 }
 
-async function overview(h_data) {
+function overview(h_data) {
     let hourly_periods = h_data.properties.periods;
 
     // build chart
@@ -36,6 +36,7 @@ async function overview(h_data) {
         let start_time = period.startTime;
         let date_ts = Date.parse(start_time);
         let date = new Date(date_ts);
+        // console.log(date)
         let dow = date.getDay()
         days.push(dows[dow]);
     }
@@ -50,16 +51,22 @@ async function overview(h_data) {
         // get time from period.startTime
         let date_ts = Date.parse(time);
         let date = new Date(date_ts);
-        let hour24 = date.getHours() + 1;
+        let hour24 = date.getHours();
+        console.log("hour24:", hour24)
         let am_pm = "am";
         let hour = hour24;
-        if(hour24 > 12){hour = hour24 - 12; am_pm = "pm"};
+        if(hour24 > 12){ hour = hour24 - 12; };
+        if(hour24 == 0){ hour = 12; };
+        if(hour24 >= 12 && hour24 != 24){ am_pm = "pm"; };
         times_pretty.push(hour + am_pm)
+        console.log("hour:", hour)
     }
 
     // labels so we can have days labeled too
     let times_pretty_with_days = [];
     for(let [index, time] of times_pretty.entries()){
+        // console.log(index)
+        // console.log(time)
         times_pretty_with_days.push(time + ";" + days[index])
     }
 
@@ -78,8 +85,41 @@ async function overview(h_data) {
     let precip_blue = "#75d6ff"
     // Chart.defaults.color = main_blue;
     // Chart.defaults.backgroundColor = main_blue;
-    Chart.register(ChartDataLabels);
-    // Chart.register(annotationPlugin);
+    Chart.register("chartjs-plugin-annotation");
+
+    // build day box annotations
+    console.log(times_pretty_with_days)
+    let day_annotations = [];
+    let prev_day = times_pretty_with_days[0].split(";")[1];
+    let draw_box = true; // toggler for alternating boxes
+    for (time of times_pretty_with_days) {
+        let day = time.split(";")[1];
+        let xMin;
+        let xMax;
+        if (day != prev_day) {
+            xMin = times_pretty_with_days.indexOf(time);
+            console.log(time)
+            console.log(xMin)
+            if(draw_box){
+                // if draw_box is true, add annotaiton to list
+                day_annotations.push({
+                    type: 'box',
+                    drawTime: "beforeDatasetsDraw",
+                    xMin: xMin,
+                    xMax: xMin + 24,
+                    yMin: 0,
+                    yMax: y_scale_max,
+                    backgroundColor: "#69686840",
+                    borderColor: "#69686840"
+                })
+                draw_box = false;
+            } else {
+                // if draw_box is false, don't add annotation but set it to true
+                draw_box = true;
+            }
+        }
+        prev_day = day;
+    }
 
 
     const overview_chart = new Chart(canv,
@@ -320,6 +360,9 @@ async function overview(h_data) {
                     },
                     tooltip: {
                         position: "nearest"
+                    },
+                    annotation: {
+                        annotations: day_annotations
                     }
                 },
                 animation: true,
