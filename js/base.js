@@ -4,6 +4,8 @@
 
 let cities;
 let h_data;
+let map;
+let select_map_point = {lat: undefined, lon: undefined}
 
 const day_abr = {
     Monday: "Mon",
@@ -30,7 +32,9 @@ async function fetch_data(url) {
         // for testing when internet not available
         console.log(`An error occurred: ${m_resp.status}`);
         console.log("Using local dataset for testing purposes.");
-        let local_data_resp = fetch("./json/local_data.json");
+        let local_data_resp = await fetch("./json/local_data.json");
+        console.log("local_data")
+        console.log(local_data_resp)
         let local_data = await local_data_resp.json();
         return local_data;
     }
@@ -93,14 +97,14 @@ async function build_layout() {
             let pane_con_day = document.createElement("div");
             pane_con_day.classList.add("pane-container");
             pane_con_day.id = "period-" + period.number;
-            pane_con_day.onclick = function(){show_details(pane_con_day)};
+            pane_con_day.onclick = function(){show_details(pane_con_day.id)};
 
             // night pane container
             let pane_con_night = document.createElement("div");
             pane_con_night.classList.add("pane-container");
             if(period.number == 1 && !period.isDaytime){pane_con_night.id = "period-" + period.number}
             else{pane_con_night.id = "period-" + (period.number + 1)};            
-            pane_con_night.onclick = function(){show_details(pane_con_night)};
+            pane_con_night.onclick = function(){show_details(pane_con_night.id)};
 
             day_div.append(pane_con_day, pane_con_night);
 
@@ -135,6 +139,31 @@ async function build_layout() {
 
     // overview
     overview(h_data);
+}
+
+async function build_page() {
+    
+    open_loading_screen();
+
+    await build_layout();
+
+    // build map
+    map = L.map('map-div').setView([39, -95], 3.5);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // event listeners for dropdown
+    let dropdown_items = document.querySelectorAll(".dropdown-item");
+    dropdown_items.forEach((el) => {
+        el.addEventListener("click", function(e){
+            let dropdown_button = document.querySelector("#menu-dropdown");
+            dropdown_button.textContent = el.textContent;
+        })
+    })
+
+    close_loading_screen();
 }
 
 function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_night) {
@@ -597,7 +626,7 @@ function hourly_chart(h_periods, period, y_scale_max) {
 }
 
 function show_details(pane) {
-    let period_num = pane.id.split("-")[1]
+    let period_num = pane.split("-")[1]
 
     // hide detail sections
     let d_sections = document.querySelectorAll(".detail-section");
@@ -616,48 +645,48 @@ function show_details(pane) {
     details_pane.classList.toggle("mobile-hide");
 }
 
-async function update_data() {
+async function update_data(new_lat, new_lon) {
     console.log("Updating data")
     // make loading icon visible
     let spinner = document.querySelector("#spinner");
     spinner.style.display = "block";
 
-    // get value of location input
-    let loc_in = document.querySelector("#location-input");
-    let new_loc = loc_in.value;
-    let new_cities = await cities;
-
-    // get coordinates of location
-    let new_loc_split = new_loc.split(", ");
-    let new_city_name = new_loc_split[0];
-    let new_state_name = new_loc_split[1];
-    let new_city = new_cities.data.filter(
-        (city) => (city[0] == new_city_name && city[1] == new_state_name));
-    console.log(new_city)
-
-    let new_lat = new_city[0][2];
-    let new_lon = new_city[0][3];
+    if(new_lat == undefined){
+        // get value of location input
+        let loc_in = document.querySelector("#location-input");
+        let new_loc = loc_in.value;
+        let new_cities = await cities;
+    
+        // get coordinates of location
+        let new_loc_split = new_loc.split(", ");
+        let new_city_name = new_loc_split[0];
+        let new_state_name = new_loc_split[1];
+        let new_city = new_cities.data.filter(
+            (city) => (city[0] == new_city_name && city[1] == new_state_name));
+        console.log(new_city)
+    
+        new_lat = new_city[0][2];
+        new_lon = new_city[0][3];
+    }
 
     // construct new URL
     // use api to get grid nums of new lat lon
     let new_points_url = "https://api.weather.gov/points/" + new_lat + "," + new_lon;
     console.log(new_points_url)
 
-    // fetch data
-    let new_points_resp = await fetch(new_points_url);
-    let new_points_data = await new_points_resp.json();
+    // fetch data - get gridpoints
+    let new_points_data = await fetch_data(new_points_url);
     let new_url = new_points_data.properties.forecast;
     console.log(new_url);
 
-    let new_data_resp = await fetch(new_url);
-    let new_data = await new_data_resp.json();
+    // get forecast with new gridpoints
+    let new_data = await fetch_data(new_url);
     console.log(new_data)
 
     let new_periods = new_data.properties.periods;
 
     // hourly
-    let new_h_periods_resp = await fetch(new_url + "/hourly");
-    let new_h_periods = await new_h_periods_resp.json();
+    let new_h_periods = await fetch_data(new_url + "/hourly");
 
     // update page elements
     for(nPeriod of new_periods) {
@@ -709,6 +738,17 @@ async function update_data() {
 
     // disable loader
     spinner.style.display = "none";
+
+    // change location label
+    let loc_label = document.querySelector("#location-label");
+    try{
+        loc_label.textContent = new_city_name + ", " + new_state_name
+    } catch {
+        let new_lat_str = String(new_lat.toFixed(4));
+        let new_lon_str = String(new_lon.toFixed(4));
+        loc_label.textContent = new_lat_str + ", " + new_lon_str
+    }
+
     console.log("done updating data")
 }
 
@@ -741,15 +781,7 @@ async function get_cities() {
 
 async function enter_loc() {
     if(event.key == "Enter") {
-        let loc_in = document.querySelector("#location-input");
-        let in_text = loc_in.value;
-        console.log(await cities)
-        let cities_resolved = await cities;
-        
-            if(cities.data.includes(in_text)){
-                loc_in.value = city[0] + ", " + city[1];
-            }
-        update_data(cities)
+        document.querySelector("#go-button").click();
     }
 }
 
@@ -795,8 +827,7 @@ async function get_afd() {
     let prod_url = "https://api.weather.gov/products/";
     let last_afd_url = prod_url + last_afd;
 
-    const last_afd_resp = await fetch(last_afd_url);
-    const last_afd_data = await last_afd_resp.json();
+    const last_afd_data = await fetch_data(last_afd_url);
 
     // Build AFD sections
     let afd_split = last_afd_data.productText.split("&&")
@@ -897,3 +928,129 @@ function range(min, max) {
     }
     return arr;
   }
+
+function map_select() {
+    // switch to 7-day tab
+    let seven_day_tablink = document.querySelector("#seven-day-dropdown-item");
+    make_active("#seven-day-tab", seven_day_tablink);
+
+    // hide detail sections
+    let d_sections = document.querySelectorAll(".detail-section");
+    d_sections.forEach((el) => {el.style.display = "none"})
+
+    // show map
+    const map_select_div = document.querySelector("#map-select-div");
+    map_select_div.style.display = "block";
+
+    // show detail section for mobile
+    let details = document.querySelector("#details");
+    details.classList.remove("mobile-hide");
+
+    let period_list = document.querySelector("#period-list");
+    period_list.classList.add("mobile-hide");
+
+    // ensure resize event triggered
+    map.invalidateSize();
+
+    // change cursor
+	L.DomUtil.addClass(map._container, "crosshair-cursor");
+
+    // on click, add point
+	let temp_marker_lat;
+	let temp_marker_lng;
+    let adding_point = true;
+	map.on('click', function(ev){
+		if(adding_point){
+			console.log(ev);
+
+			// set lat lng in form
+			temp_marker_lat = ev.latlng.lat;
+			temp_marker_lng = ev.latlng.lng;
+			// let add_table_lng = document.getElementById('select-lng');
+			// let add_table_lat = document.getElementById('select-lat');
+			// add_table_lat.value = Math.round(ev.latlng.lat * 100000) / 100000;
+			// add_table_lng.value = Math.round(ev.latlng.lng * 100000) / 100000;
+
+			// add temporary marker to the map
+			let temp_marker = L.marker([temp_marker_lat, temp_marker_lng], {
+				icon: L.divIcon({
+					className: 'temp-marker'
+				})
+			});
+			temp_marker.addTo(map);
+
+			adding_point = false;
+			L.DomUtil.removeClass(map._container, "crosshair-cursor")
+
+            // enable "Select" button
+            let select_button = document.querySelector("#select-button");
+            select_button.disabled = false;
+
+            // set global variable with coordinates
+            select_map_point.lat = temp_marker_lat;
+            select_map_point.lon = temp_marker_lng;
+		}
+	});
+}
+
+async function select_map_loc() {
+    // populate location input
+    input_text = String(select_map_point.lat) + ", " + String(select_map_point.lon);
+    let loc_in = document.querySelector("#location-input");
+    loc_in.value = input_text;
+
+    // loading screen
+    open_loading_screen()
+
+    // load new data
+    await update_data(select_map_point.lat, select_map_point.lon);
+
+    // hide loading screen
+    close_loading_screen()
+
+    // close map
+    close_map();
+}
+
+function close_map() {
+    show_details("detail-default");
+
+    // for mobile, show period list
+    let details = document.querySelector("#details");
+    details.classList.add("mobile-hide");
+
+    let period_list = document.querySelector("#period-list");
+    period_list.classList.remove("mobile-hide");
+}
+
+function open_loading_screen() {
+    console.log("open_loading_screen")
+    let ls = document.querySelector("#loading-screen");
+    ls.style.display = "flex";
+    ls.style.zIndex = 1000;
+}
+
+function close_loading_screen() {
+    console.log("close_loading_screen")
+    let ls = document.querySelector("#loading-screen");
+    ls.style.display = "none";
+}
+
+function change_location() {
+
+}
+
+async function enter_city_go_button() {
+    // loading screen
+    open_loading_screen()
+
+    // load new data
+    await update_data(select_map_point.lat, select_map_point.lon);
+
+    // hide loading screen
+    close_loading_screen()
+
+    // switch to 7-day tab
+    let seven_day_tablink = document.querySelector("#seven-day-dropdown-item");
+    make_active("#seven-day-tab", seven_day_tablink);
+}

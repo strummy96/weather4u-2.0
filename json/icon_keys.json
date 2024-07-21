@@ -31,7 +31,9 @@
 
     "Slight Chance Snow Showers": "overcast-day-snow.png",
 
-    "Patchy Frost": "thermometer-colder.png"
+    "Patchy Frost": "thermometer-colder.png",
+
+    "Haze": "fog-day.png"
 },  
 
 "meteocons_night": {
@@ -65,7 +67,9 @@
 
     "Slight Chance Snow Showers": "overcast-day-snow.png",
 
-    "Patchy Frost": "thermometer-colder.png"
+    "Patchy Frost": "thermometer-colder.png",
+
+    "Haze": "fog-night.png"
 
     }
 }

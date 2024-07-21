@@ -5,6 +5,9 @@
 		},
 		{
 			"path": "../websites/weather4u"
+		},
+		{
+			"path": "../sniff-map"
 		}
 	],
 	"settings": {
