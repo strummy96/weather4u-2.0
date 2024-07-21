@@ -36,7 +36,7 @@
         <div id="sub-header">
           <div id="location-header">
             <div id="location-label">Somerville, MA</div>
-            <button onclick="make_active('#location-tab', this); 
+            <button class="btn btn-light", onclick="make_active('#location-tab', this); 
                             // put cursor in location input
                              document.querySelector('#location-input').focus()">Change</button>
           </div>
@@ -141,7 +141,7 @@
               <input type="text" placeholder="Enter city..." id="location-input" 
               list="cities_list" onkeydown=enter_loc()>
               <datalist id="cities_list"></datalist>
-              <button id="go-button" onclick="enter_city_go_button()" disabled>Go</button>
+              <button id="go-button" class="btn btn-light" onclick="enter_city_go_button()" disabled>Go</button>
               <img src="spinner.gif" alt="Spinning loading gif" id="spinner">
             </div>
 
@@ -149,7 +149,7 @@
   
             <!-- choose on map -->
             <div>
-              <button id="map-location-button" onclick="map_select()">Choose on map</button>
+              <button id="map-location-button" class="btn btn-light" onclick="map_select()">Choose on map</button>
             </div>
           </div>
           

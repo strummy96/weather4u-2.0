@@ -7,6 +7,10 @@ body {
     margin: 0px;
 }
 
+/* .btn {
+    --bs-btn-bg: white;
+} */
+
 .tablink {
     padding: 10px;
     border-radius: 5vw;
@@ -250,7 +254,7 @@ a.selected {
 }
 
 #afd {
-    margin: 20px 200px;
+    margin: 20px 10%;
     height: 100%;
 }
 
