@@ -651,6 +651,8 @@ async function update_data(new_lat, new_lon) {
     let spinner = document.querySelector("#spinner");
     spinner.style.display = "block";
 
+    let new_city_name;
+    let new_state_name;
     if(new_lat == undefined){
         // get value of location input
         let loc_in = document.querySelector("#location-input");
@@ -659,8 +661,8 @@ async function update_data(new_lat, new_lon) {
     
         // get coordinates of location
         let new_loc_split = new_loc.split(", ");
-        let new_city_name = new_loc_split[0];
-        let new_state_name = new_loc_split[1];
+        new_city_name = new_loc_split[0];
+        new_state_name = new_loc_split[1];
         let new_city = new_cities.data.filter(
             (city) => (city[0] == new_city_name && city[1] == new_state_name));
         console.log(new_city)
@@ -743,10 +745,16 @@ async function update_data(new_lat, new_lon) {
     let loc_label = document.querySelector("#location-label");
     try{
         loc_label.textContent = new_city_name + ", " + new_state_name
-    } catch {
-        let new_lat_str = String(new_lat.toFixed(4));
-        let new_lon_str = String(new_lon.toFixed(4));
-        loc_label.textContent = new_lat_str + ", " + new_lon_str
+    } catch (e){
+        console.log("Error setting location label:", e);
+        try{
+            let new_lat_str = String(new_lat.toFixed(4));
+            let new_lon_str = String(new_lon.toFixed(4));
+            loc_label.textContent = new_lat_str + ", " + new_lon_str;
+        } catch (e) {
+            console.log("Another error:", e);
+            loc_label.textContent = "[location]"
+        }
     }
 
     console.log("done updating data")

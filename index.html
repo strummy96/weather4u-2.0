@@ -36,7 +36,9 @@
         <div id="sub-header">
           <div id="location-header">
             <div id="location-label">Somerville, MA</div>
-            <button onclick="make_active('#location-tab', this)">Change</button>
+            <button onclick="make_active('#location-tab', this); 
+                            // put cursor in location input
+                             document.querySelector('#location-input').focus()">Change</button>
           </div>
 
           <!-- header dropdown -->
