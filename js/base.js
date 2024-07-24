@@ -738,6 +738,11 @@ async function update_data(new_lat, new_lon) {
         det_fc.textContent = nPeriod.detailedForecast;
     }    
 
+    // update overview
+    overview(new_h_periods)
+
+    // update_afd()
+
     // disable loader
     spinner.style.display = "none";
 

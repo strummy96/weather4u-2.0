@@ -8,15 +8,23 @@ let dows = {
     6: "Saturday"
 }
 
+let canv;
+let overview_chart;
+
 function overview(h_data) {
     let hourly_periods = h_data.properties.periods;
 
     // build chart
     let chart_div = document.querySelector("#overview");
     chart_div.classList.add("overview-chart-container");
-    let canv = document.createElement("canvas");
-    canv.classList.add("chart-canvas-overview");
-    chart_div.append(canv);
+    if(document.querySelector(".chart-canvas-overview") == undefined){
+        canv = document.createElement("canvas");
+        canv.classList.add("chart-canvas-overview");
+        chart_div.append(canv);
+    } else {
+        canv = document.querySelector(".chart-canvas-overview");
+        overview_chart.destroy()
+    }
 
     // set up datasets
 
@@ -119,7 +127,7 @@ function overview(h_data) {
     }
 
 
-    const overview_chart = new Chart(canv,
+    overview_chart = new Chart(canv,
         {
             type: "line",
             data: {
