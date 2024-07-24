@@ -646,123 +646,128 @@ function show_details(pane) {
 }
 
 async function update_data(new_lat, new_lon) {
-    console.log("Updating data")
-    // make loading icon visible
-    let spinner = document.querySelector("#spinner");
-    spinner.style.display = "block";
-
-    let new_city_name;
-    let new_state_name;
-    if(new_lat == undefined){
-        // get value of location input
-        let loc_in = document.querySelector("#location-input");
-        let new_loc = loc_in.value;
-        let new_cities = await cities;
-    
-        // get coordinates of location
-        let new_loc_split = new_loc.split(", ");
-        new_city_name = new_loc_split[0];
-        new_state_name = new_loc_split[1];
-        let new_city = new_cities.data.filter(
-            (city) => (city[0] == new_city_name && city[1] == new_state_name));
-        console.log(new_city)
-    
-        new_lat = new_city[0][2];
-        new_lon = new_city[0][3];
-    }
-
-    // construct new URL
-    // use api to get grid nums of new lat lon
-    let new_points_url = "https://api.weather.gov/points/" + new_lat + "," + new_lon;
-    console.log(new_points_url)
-
-    // fetch data - get gridpoints
-    let new_points_data = await fetch_data(new_points_url);
-    let new_url = new_points_data.properties.forecast;
-    console.log(new_url);
-
-    // get forecast with new gridpoints
-    let new_data = await fetch_data(new_url);
-    console.log(new_data)
-
-    let new_periods = new_data.properties.periods;
-
-    // hourly
-    let new_h_periods = await fetch_data(new_url + "/hourly");
-
-    // update page elements
-    for(nPeriod of new_periods) {
-
-        // period names
-        let pname_el = document.querySelector("#period-name-" + nPeriod.number);
-        re = new RegExp(Object.keys(day_abr).join("|"),"gi"); 
-        pname_el.textContent = nPeriod.name.replace(re, function(matched){
-            return day_abr[matched];
-        });
-
-        // icon
-        let icon_el = document.querySelector("#icon-" + nPeriod.number);
-        build_icon(nPeriod, icon_el, meteocons_day, meteocons_night);
-
-        // temperature
-        let temp_text = document.querySelector("#temp-" + nPeriod.number);
-        temp_text.innerHTML = nPeriod.temperature + "&deg;"
-
-        // temps for max and min
-        let temps = new_data.properties.periods.map(({temperature}) => temperature);
-        let chance_precips = new_data.properties.periods.map(
-            ({probabilityOfPrecipitation}) => probabilityOfPrecipitation.value);
-
-        // get max values to set scale range - want this to be the same for side-by-side periods
-        let ymax_temp = Math.max(...temps.filter((temp) => !isNaN(temp)));
-        let ymax_prec = Math.max(...chance_precips.filter((cp) => !isNaN(cp)));
-
-        let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
-
-
-        // conditions
-        let cond_text = document.querySelector("#cond-" + nPeriod.number);
-        cond_text.innerHTML = nPeriod.shortForecast;
-
-
-        // graph
-        //
-        // clear graph
-        let graph_div = document.querySelector("#graph-" + nPeriod.number);
-        graph_div.innerHTML = "";
-        hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
-
-        // detailed forecast
-        console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
-        let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
-        det_fc.textContent = nPeriod.detailedForecast;
-    }    
-
-    // update overview
-    overview(new_h_periods)
-
-    // update_afd()
-
-    // disable loader
-    spinner.style.display = "none";
-
-    // change location label
-    let loc_label = document.querySelector("#location-label");
     try{
-        loc_label.textContent = new_city_name + ", " + new_state_name
-    } catch (e){
-        console.log("Error setting location label:", e);
-        try{
-            let new_lat_str = String(new_lat.toFixed(4));
-            let new_lon_str = String(new_lon.toFixed(4));
-            loc_label.textContent = new_lat_str + ", " + new_lon_str;
-        } catch (e) {
-            console.log("Another error:", e);
-            loc_label.textContent = "[location]"
+        console.log("Updating data")
+        // make loading icon visible
+        let spinner = document.querySelector("#spinner");
+        spinner.style.display = "block";
+    
+        let new_city_name;
+        let new_state_name;
+        if(new_lat == undefined){
+            // get value of location input
+            let loc_in = document.querySelector("#location-input");
+            let new_loc = loc_in.value;
+            let new_cities = await cities;
+        
+            // get coordinates of location
+            let new_loc_split = new_loc.split(", ");
+            new_city_name = new_loc_split[0];
+            new_state_name = new_loc_split[1];
+            let new_city = new_cities.data.filter(
+                (city) => (city[0] == new_city_name && city[1] == new_state_name));
+            console.log(new_city)
+        
+            new_lat = new_city[0][2];
+            new_lon = new_city[0][3];
         }
+    
+        // construct new URL
+        // use api to get grid nums of new lat lon
+        let new_points_url = "https://api.weather.gov/points/" + new_lat + "," + new_lon;
+        console.log(new_points_url)
+    
+        // fetch data - get gridpoints
+        let new_points_data = await fetch_data(new_points_url);
+        let new_url = new_points_data.properties.forecast;
+        console.log(new_url);
+    
+        // get forecast with new gridpoints
+        let new_data = await fetch_data(new_url);
+        console.log(new_data)
+    
+        let new_periods = new_data.properties.periods;
+    
+        // hourly
+        let new_h_periods = await fetch_data(new_url + "/hourly");
+    
+        // update page elements
+        for(nPeriod of new_periods) {
+    
+            // period names
+            let pname_el = document.querySelector("#period-name-" + nPeriod.number);
+            re = new RegExp(Object.keys(day_abr).join("|"),"gi"); 
+            pname_el.textContent = nPeriod.name.replace(re, function(matched){
+                return day_abr[matched];
+            });
+    
+            // icon
+            let icon_el = document.querySelector("#icon-" + nPeriod.number);
+            build_icon(nPeriod, icon_el, meteocons_day, meteocons_night);
+    
+            // temperature
+            let temp_text = document.querySelector("#temp-" + nPeriod.number);
+            temp_text.innerHTML = nPeriod.temperature + "&deg;"
+    
+            // temps for max and min
+            let temps = new_data.properties.periods.map(({temperature}) => temperature);
+            let chance_precips = new_data.properties.periods.map(
+                ({probabilityOfPrecipitation}) => probabilityOfPrecipitation.value);
+    
+            // get max values to set scale range - want this to be the same for side-by-side periods
+            let ymax_temp = Math.max(...temps.filter((temp) => !isNaN(temp)));
+            let ymax_prec = Math.max(...chance_precips.filter((cp) => !isNaN(cp)));
+    
+            let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
+    
+    
+            // conditions
+            let cond_text = document.querySelector("#cond-" + nPeriod.number);
+            cond_text.innerHTML = nPeriod.shortForecast;
+    
+    
+            // graph
+            //
+            // clear graph
+            let graph_div = document.querySelector("#graph-" + nPeriod.number);
+            graph_div.innerHTML = "";
+            hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
+    
+            // detailed forecast
+            console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
+            let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
+            det_fc.textContent = nPeriod.detailedForecast;
+        }    
+    
+        // update overview
+        overview(new_h_periods)
+    
+        // update_afd()
+    
+        // disable loader
+        spinner.style.display = "none";
+    
+        // change location label
+        let loc_label = document.querySelector("#location-label");
+        try{
+            loc_label.textContent = new_city_name + ", " + new_state_name
+        } catch (e){
+            console.log("Error setting location label:", e);
+            try{
+                let new_lat_str = String(new_lat.toFixed(4));
+                let new_lon_str = String(new_lon.toFixed(4));
+                loc_label.textContent = new_lat_str + ", " + new_lon_str;
+            } catch (e) {
+                console.log("Another error:", e);
+                loc_label.textContent = "[location]"
+            }
+        }
+    
+        console.log("done updating data")
+    } catch (e) {
+        alert(e)
     }
-
-    console.log("done updating data")
+    
 }
 
 async function get_cities() {
