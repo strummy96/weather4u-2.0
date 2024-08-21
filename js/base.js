@@ -41,7 +41,8 @@ async function fetch_data(url) {
 }
 
 // main function to fetch data and build page layout
-async function build_layout() {
+async function build_layout(coords) {
+    // coords - returned from navigator.geolocation.getCurrentPosition()
 
     meteocons = await get_mcons();
     meteocons_day = meteocons["meteocons_day"];
@@ -51,16 +52,36 @@ async function build_layout() {
     // WAKEFIELD RI - 64,46
     // SOMERVILLE, MA - 70,91
 
+    let lat = coords.latitude;
+    let lon = coords.longitude;
+    // test
+    // let lat = 42;
+    // let lon = -91;
+
+    // construct URL
+    // use api to get grid nums for lat lon
+    let points_url = "https://api.weather.gov/points/" + lat + "," + lon;
+    console.log(points_url)
+    let points_resp = await fetch_data(points_url);
+    console.log('points_resp: ', points_resp)
+
+    // CITY IS GIVEN BY NWS API!!!
+    let loc_label = document.querySelector("#location-label");
+    loc_label.textContent = points_resp.properties.relativeLocation.properties.city + ", " + points_resp.properties.relativeLocation.properties.state;
+
+    // 7-day forecast url
+    let fc_url = points_resp.properties.forecast;
+    console.log(fc_url);
+
     // hourly forecast data
-    wakefield_hourly_url = "https://api.weather.gov/gridpoints/BOX/70,91/forecast/hourly";
-    h_data = await fetch_data(wakefield_hourly_url);
+    hourly_url = points_resp.properties.forecastHourly;
+    h_data = await fetch_data(hourly_url);
     // const h_data = await h_resp.json();
     console.log("hourly forecast data");
     console.log(h_data);
     
     // forecast data
-    let wakefield_url = "https://api.weather.gov/gridpoints/BOX/70,91/forecast";
-    const data = await fetch_data(wakefield_url);
+    const data = await fetch_data(fc_url);
     // const data = await resp.json();
     console.log("7 day forecast data");
     console.log(data);
@@ -145,7 +166,15 @@ async function build_page() {
     
     open_loading_screen();
 
-    await build_layout();
+    navigator.geolocation.getCurrentPosition(async (success, error) => {
+        if(success){
+            console.log(success.coords)
+
+            await build_layout(success.coords);
+        } else {
+            console.log(error)
+        }
+    })
 
     // build map
     map = L.map('map-div').setView([39, -95], 3.5);
@@ -463,6 +492,11 @@ function build_detail_section(period, hourly_data, y_scale_max) {
     detail_section.append(graph_el);
     detail_pane.append(detail_section);
 
+    // make first period visible
+    if(period.number == 1){
+        detail_pane.style.display = "block";
+    }
+
     hourly_chart(hourly_data.properties.periods, period, y_scale_max)
 
     return detail_section;
@@ -734,7 +768,7 @@ async function update_data(new_lat, new_lon) {
             hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
     
             // detailed forecast
-            console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
+            // console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
             let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
             det_fc.textContent = nPeriod.detailedForecast;
         }    
@@ -742,7 +776,9 @@ async function update_data(new_lat, new_lon) {
         // update overview
         overview(new_h_periods)
     
-        // update_afd()
+        // update afd
+        let new_wfo = new_points_data.properties.cwa;
+        update_afd(new_wfo);
     
         // disable loader
         spinner.style.display = "none";
@@ -750,7 +786,7 @@ async function update_data(new_lat, new_lon) {
         // change location label
         let loc_label = document.querySelector("#location-label");
         try{
-            loc_label.textContent = new_city_name + ", " + new_state_name
+            loc_label.textContent = new_points_data.properties.relativeLocation.properties.city + ", " + new_points_data.properties.relativeLocation.properties.state;
         } catch (e){
             console.log("Error setting location label:", e);
             try{
@@ -847,80 +883,177 @@ async function get_afd() {
 
     const last_afd_data = await fetch_data(last_afd_url);
 
+    // temporary simple display
+    let afd_text = document.querySelector("#afd-text");
+    afd_text.textContent = last_afd_data.productText;
+
     // Build AFD sections
-    let afd_split = last_afd_data.productText.split("&&")
+    // let afd_split = last_afd_data.productText.split("&&")
 
-    for(section of afd_split){
-        // remove credits section
-        if(section.includes("$$")){
-            continue
-        }
+    // for(section of afd_split){
+    //     // remove credits section
+    //     if(section.includes("$$")){
+    //         continue
+    //     }
 
-        if(section.includes("SYNOPSIS")){
-            let section_splitlines = section.split(/[\r\n]+/);
+    //     if(section.includes("SYNOPSIS")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
             
-            let syn_acc_button = document.querySelector("#synopsis-acc-button");
-            for(line of section_splitlines){
-                if(line.includes("SYNOPSIS")){syn_acc_button.innerHTML = line; 
-                    section.replace(line, '');
-                    break}
-            }
+    //         let syn_acc_button = document.querySelector("#synopsis-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line.includes("SYNOPSIS")){syn_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break}
+    //         }
             
-            let acc_synopsis = document.querySelector("#acc-synopsis");
-            acc_synopsis.innerHTML = "<p style='white-space: pre-line;'>" + 
-                                        bold_words(section) + 
-                                        "</p>";
-        }
+    //         let acc_synopsis = document.querySelector("#acc-synopsis");
+    //         acc_synopsis.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
 
-        if(section.includes("NEAR TERM")){
-            let section_splitlines = section.split(/[\r\n]+/);
+    //     if(section.includes("NEAR TERM")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
             
-            let near_term_acc_button = document.querySelector("#near-term-acc-button");
-            for(line of section_splitlines){
-                if(line != ""){
-                    near_term_acc_button.innerHTML = line; 
-                    section.replace(line, '');
-                    break
-                }
-            }
+    //         let near_term_acc_button = document.querySelector("#near-term-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line != ""){
+    //                 near_term_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break
+    //             }
+    //         }
             
 
-            let acc_near_term = document.querySelector("#acc-near-term");
-            acc_near_term.innerHTML = "<p style='white-space: pre-line;'>" + 
-                                        bold_words(section) + 
-                                        "</p>";
-        }
+    //         let acc_near_term = document.querySelector("#acc-near-term");
+    //         acc_near_term.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
         
-        if(section.includes("SHORT TERM")){
-            let section_splitlines = section.split(/[\r\n]+/);
+    //     if(section.includes("SHORT TERM")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
             
-            let short_term_acc_button = document.querySelector("#short-term-acc-button");
-            for(line of section_splitlines){
-                if(line != ""){short_term_acc_button.innerHTML = line; 
-                    section.replace(line, '');
-                    break}
-            }
+    //         let short_term_acc_button = document.querySelector("#short-term-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line != ""){short_term_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break}
+    //         }
             
-            let acc_short_term = document.querySelector("#acc-short-term");
-            acc_short_term.innerHTML = "<p style='white-space: pre-line;'>" + 
-                                        bold_words(section) + 
-                                        "</p>";
-        }
-        if(section.includes("LONG TERM")){
-            let section_splitlines = section.split(/[\r\n]+/);
+    //         let acc_short_term = document.querySelector("#acc-short-term");
+    //         acc_short_term.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
+    //     if(section.includes("LONG TERM")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
             
-            let long_term_acc_button = document.querySelector("#long-term-acc-button");
-            for(line of section_splitlines){
-                if(line != ""){long_term_acc_button.innerHTML = line; 
-                    section.replace(line, '');
-                    break}
-            }
-            let acc_long_term = document.querySelector("#acc-long-term");
-            acc_long_term.innerHTML = "<p style='white-space: pre-line;'>" + 
-                                        bold_words(section) + 
-                                        "</p>";
-        }
-    }
+    //         let long_term_acc_button = document.querySelector("#long-term-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line != ""){long_term_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break}
+    //         }
+    //         let acc_long_term = document.querySelector("#acc-long-term");
+    //         acc_long_term.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
+    // }
+
+}
+async function update_afd(new_wfo) {
+
+    // get new afd data
+    let new_afd_url = "https://api.weather.gov/products/types/AFD/locations/" + new_wfo;
+    const data = await fetch_data(new_afd_url);
+
+    let last_afd = data["@graph"][0].id;
+
+    let prod_url = "https://api.weather.gov/products/";
+    let last_afd_url = prod_url + last_afd;
+
+    const last_afd_data = await fetch_data(last_afd_url);
+
+    // temporary simple display
+    let afd_text = document.querySelector("#afd-text");
+    afd_text.textContent = last_afd_data.productText;
+
+    // Update AFD sections
+    // let afd_split = last_afd_data.productText.split("&&")
+
+    // for(section of afd_split){
+    //     // remove credits section
+    //     if(section.includes("$$")){
+    //         continue
+    //     }
+
+    //     if(section.includes("SYNOPSIS")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
+            
+    //         let syn_acc_button = document.querySelector("#synopsis-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line.includes("SYNOPSIS")){syn_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break}
+    //         }
+            
+    //         let acc_synopsis = document.querySelector("#acc-synopsis");
+    //         acc_synopsis.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
+
+    //     if(section.includes("NEAR TERM")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
+            
+    //         let near_term_acc_button = document.querySelector("#near-term-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line != ""){
+    //                 near_term_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break
+    //             }
+    //         }
+            
+
+    //         let acc_near_term = document.querySelector("#acc-near-term");
+    //         acc_near_term.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
+        
+    //     if(section.includes("SHORT TERM")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
+            
+    //         let short_term_acc_button = document.querySelector("#short-term-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line != ""){short_term_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break}
+    //         }
+            
+    //         let acc_short_term = document.querySelector("#acc-short-term");
+    //         acc_short_term.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
+    //     if(section.includes("LONG TERM")){
+    //         let section_splitlines = section.split(/[\r\n]+/);
+            
+    //         let long_term_acc_button = document.querySelector("#long-term-acc-button");
+    //         for(line of section_splitlines){
+    //             if(line != ""){long_term_acc_button.innerHTML = line; 
+    //                 section.replace(line, '');
+    //                 break}
+    //         }
+    //         let acc_long_term = document.querySelector("#acc-long-term");
+    //         acc_long_term.innerHTML = "<p style='white-space: pre-line;'>" + 
+    //                                     bold_words(section) + 
+    //                                     "</p>";
+    //     }
+    // }
 
 }
 

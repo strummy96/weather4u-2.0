@@ -35,10 +35,14 @@
 
         <div id="sub-header">
           <div id="location-header">
-            <div id="location-label">Somerville, MA</div>
+            <div id="location-label"></div>
             <button class="btn btn-light", onclick="make_active('#location-tab', this); 
                             // put cursor in location input
-                             document.querySelector('#location-input').focus()">Change</button>
+                            let loc_in = document.querySelector('#location-input');
+                            loc_in.focus();
+                            // empty location input
+                            loc_in.value = ''">
+                            Change</button>
           </div>
 
           <!-- header dropdown -->
@@ -86,7 +90,8 @@
 
         <div id="afd-tab" class="tabcontent">
             <div id="afd">
-                <div class="accordion" id="afd-accordion">
+              <div id="afd-text" style="white-space: pre-line;"></div>
+                <div class="accordion" id="afd-accordion" style="display: none">
                     <div class="accordion-item">
                       <h2 class="accordion-header">
                         <button class="accordion-button" id="synopsis-acc-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseZero" aria-expanded="true" aria-controls="collapseZero">
