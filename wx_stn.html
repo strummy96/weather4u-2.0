@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<head>
+	<meta charset="utf-8"/>
+
+	<script>
+		async function get_wx_data(){
+		
+			// fetch new data
+			const resp = await fetch('https://rt.ambientweather.net/v1/devices/30:83:98:A7:4B:D6?apiKey=5148a99c95074b1eb4216a96ffbae35f46b3822546af441a9e1a7c66c0c0635e&applicationKey=9a29a54a26814ea58c19b66bfd070d3f9834f498ec794724a604f7b8dba8d379&endDate=&limit=288')
+			const d = await resp.json();
+
+			document.title = d[0].tempf + '°';
+
+			console.log("data updated");
+		};
+
+		get_wx_data();
+
+		setInterval(() => {get_wx_data()}, 60000)
+		
+	</script>
+	
+	<style>
+		table, th, td {
+			border: 1px solid black;
+			border-collapse: collapse;
+			padding: 5px;
+		}
+		</style>
+</head>
+
+<body>
+	<button onclick=get_wx_data()>get data</button>
+	<table>
+		<th>
+			<th>Date</th>
+			<th>Time</th>
+			<th>Temp</th>
+		</th>
+		<tr>
+			<td id="date_cell"></td>
+			<td id="time_cell"></td>
+			<td id="temp_cell"></td>
+		</tr>
+</body>
