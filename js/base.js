@@ -494,7 +494,7 @@ function build_detail_section(period, hourly_data, y_scale_max) {
 
     // make first period visible
     if(period.number == 1){
-        detail_pane.style.display = "block";
+        detail_section.style.display = "block";
     }
 
     hourly_chart(hourly_data.properties.periods, period, y_scale_max)
