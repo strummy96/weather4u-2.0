@@ -9,9 +9,28 @@
 			const resp = await fetch('https://rt.ambientweather.net/v1/devices/30:83:98:A7:4B:D6?apiKey=5148a99c95074b1eb4216a96ffbae35f46b3822546af441a9e1a7c66c0c0635e&applicationKey=9a29a54a26814ea58c19b66bfd070d3f9834f498ec794724a604f7b8dba8d379&endDate=&limit=288')
 			const d = await resp.json();
 
-			document.title = d[0].tempf + '°';
+			// doc title
+			document.title = d[0].tempf + '° ' + d[0].humidity + 
+			'% - ' + d[0].tempinf + '° ' + d[0].humidityin + '%';
 
-			console.log("data updated");
+			// table
+			//
+			// clear table
+			let table = document.querySelector("#tbl");
+			table.innerHTML = "";
+
+			// fill in new data
+			for (const [key, value] of Object.entries(d[0])){
+				let tr = document.createElement('tr');
+				let td_key = document.createElement('td');
+				let td_value = document.createElement('td');
+				td_key.textContent = key;
+				td_value.textContent = value;
+				tr.append(td_key, td_value);
+				tbl.append(tr);
+			}
+			console.log(typeof(d[0]))
+			console.log("data updated", d[0]);
 		};
 
 		get_wx_data();
@@ -26,20 +45,24 @@
 			border-collapse: collapse;
 			padding: 5px;
 		}
+
+		#con {
+			column-count: 2;
+			-moz-column-count:2;
+			-webkit-column-count:2;
+			width: 50%;
+		}
 		</style>
 </head>
 
 <body>
 	<button onclick=get_wx_data()>get data</button>
-	<table>
-		<th>
-			<th>Date</th>
-			<th>Time</th>
-			<th>Temp</th>
-		</th>
-		<tr>
-			<td id="date_cell"></td>
-			<td id="time_cell"></td>
-			<td id="temp_cell"></td>
-		</tr>
+	<div id="con">
+		<table id="tbl">
+			<th>
+				<th>Parameter</th>
+				<th>Value</th>
+			</th>
+		</table>
+	</div>
 </body>
