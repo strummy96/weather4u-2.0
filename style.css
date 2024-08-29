@@ -304,7 +304,7 @@ a.selected {
 
 #sub-header {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     width: 50%;
 }
 
@@ -325,6 +325,11 @@ a.selected {
 .tabcontent {
     display: none;
     height: 100%;
+}
+
+.btn-primary {
+    --bs-btn-bg: #89b1d4;
+    --bs-btn-border-color: #89b1d4;
 }
 
 @media (width <= 800px) {
@@ -350,6 +355,7 @@ a.selected {
 
     #detail-back-btn {
         display: inline;
+        margin: 5px 0;
     }
 
     /* .tablink {
@@ -378,5 +384,6 @@ a.selected {
 
     #sub-header {
         width: 100%;
+        margin: 10px 0;
     }
 }

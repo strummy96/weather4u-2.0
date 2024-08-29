@@ -463,6 +463,7 @@ function build_detail_section(period, hourly_data, y_scale_max) {
     // back button (for mobile)
     let back_btn = document.createElement("button");
     back_btn.id = 'detail-back-btn';
+    back_btn.classList.add('btn', 'btn-primary');
     back_btn.textContent = "Back";
     back_btn.onclick = function(){
         detail_pane.classList.toggle("mobile-hide");
