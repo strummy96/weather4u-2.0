@@ -82,6 +82,16 @@ a.selected {
     align-items: center;
 }
 
+.detail-period-title {
+    font-size: 20pt;
+    padding: 10px 0px;
+    text-align: center;
+}
+
+.np-con button {
+    width: 30vw;
+}
+
 .pname {
     position: absolute;
     top: 50%;
@@ -323,6 +333,10 @@ a.selected {
 .btn-primary {
     --bs-btn-bg: #89b1d4;
     --bs-btn-border-color: #89b1d4;
+    --bs-hover-bg: lightgrey;
+    --bs-hover-border-color: lightgrey;
+    --bs-disabled-bg: lightgrey;
+    --bs-disabled-border-color: lightgrey;
 }
 
 @media (width <= 800px) {
