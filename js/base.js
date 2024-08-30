@@ -6,6 +6,7 @@ let cities;
 let h_data;
 let map;
 let select_map_point = {lat: undefined, lon: undefined}
+let current_det_page_num;
 
 const day_abr = {
     Monday: "Mon",
@@ -343,11 +344,11 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     
     parent_el.append(main_pane);
 
-    let detail_pane = document.createElement("div");
-    detail_pane.classList.add("detail-pane");
-    detail_pane.style.height = main_pane.clientHeight * 0.4
-    detail_pane.append(cond_el);
-    main_pane.append(detail_pane);
+    // let detail_pane = document.createElement("div");
+    // detail_pane.classList.add("detail-pane");
+    // detail_pane.style.height = main_pane.clientHeight * 0.4
+    // detail_pane.append(cond_el);
+    // main_pane.append(detail_pane);
 }
 
 function make_active(id, tablink) {
@@ -475,22 +476,30 @@ function build_detail_section(period, hourly_data, y_scale_max) {
     // title
     let p_title = document.createElement("div");
     p_title.textContent = period.name;
-    p_title.style.fontSize = "20pt";
-    p_title.style.padding = "10px 0px";
-
-    // detailed forecast
-    let dFore = document.createElement("div");
-    dFore.textContent = period.detailedForecast;
-    dFore.classList.add("detailed-forecast");
+    p_title.classList.add("detail-period-title");
 
     // graph
     let graph_el = document.createElement("div");
     graph_el.id = "graph-" + period.number;
     graph_el.classList.add("graph-div");
+
+    // next/previous buttons
+    let next_btn = document.createElement('button');
+    next_btn.classList.add("btn", "btn-primary");
+    next_btn.textContent = "Next";
+    next_btn.onclick = function(){navigate_detail_pages(current_det_page_num, 1)};
+    let prev_btn = document.createElement('button');
+    prev_btn.classList.add("btn", "btn-primary");
+    prev_btn.textContent = "Previous";
+    prev_btn.onclick = function(){navigate_detail_pages(current_det_page_num, -1)};
+
+    let np_con = document.createElement("div");
+    np_con.classList.add("d-flex", "justify-content-evenly", "np-con");
+    np_con.append(prev_btn, next_btn);
         
     detail_section.append(p_title);
-    detail_section.append(dFore);
     detail_section.append(graph_el);
+    detail_section.append(np_con);
     detail_pane.append(detail_section);
 
     // make first period visible
@@ -660,7 +669,7 @@ function hourly_chart(h_periods, period, y_scale_max) {
     )
 }
 
-function show_details(pane) {
+function show_details(pane, toggle=true) {
     let period_num = pane.split("-")[1]
 
     // hide detail sections
@@ -668,16 +677,41 @@ function show_details(pane) {
     d_sections.forEach((el) => {el.style.display = "none"})
 
     // show detail section
+    current_det_page_num = period_num;
     let detail_section = document.querySelector("#detail-" + period_num);
     detail_section.style.display = "block";
 
-    // add class to tile section to hide on mobile
-    let tile_section = document.querySelector("#period-list");
-    tile_section.classList.add("mobile-hide");
+    if(toggle){
+        toggle_show_hide_mobile_pages();
+    }
+}
 
-    // remove class from details pane
+function toggle_show_hide_mobile_pages(){
+    /**
+     * Either show the period list and hide the detail pane or visa versa. Uses toggle on "mobile-hide" class.
+     */
+    
+    let tile_section = document.querySelector("#period-list");
+    tile_section.classList.toggle("mobile-hide");
+
     let details_pane = document.querySelector("#details");
     details_pane.classList.toggle("mobile-hide");
+}
+
+function navigate_detail_pages(current_det_page_num_param, next_prev){
+    /**
+     * Navigates to the next or previous detail page.
+     * 
+     * @param {Number} current_det_page_num_param The period number currently displaying a detail page.
+     * @param {Number} next_prev 1 to move to next period, -1 to move to previous.
+     */
+
+    let dest_period_num = Number(current_det_page_num_param) + Number(next_prev);
+    console.log("dest_period_num: ", dest_period_num)
+    if(dest_period_num < 1 || dest_period_num > 14){
+        return;
+    }
+    show_details("details-" + dest_period_num, false);
 }
 
 async function update_data(new_lat, new_lon) {
@@ -1165,7 +1199,7 @@ async function select_map_loc() {
 }
 
 function close_map() {
-    show_details("detail-default");
+    show_details("detail-default", toggle=false);
 
     // for mobile, show period list
     let details = document.querySelector("#details");
