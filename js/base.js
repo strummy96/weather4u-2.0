@@ -343,11 +343,11 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     
     parent_el.append(main_pane);
 
-    let detail_pane = document.createElement("div");
-    detail_pane.classList.add("detail-pane");
-    detail_pane.style.height = main_pane.clientHeight * 0.4
-    detail_pane.append(cond_el);
-    main_pane.append(detail_pane);
+    // let detail_pane = document.createElement("div");
+    // detail_pane.classList.add("detail-pane");
+    // detail_pane.style.height = main_pane.clientHeight * 0.4
+    // detail_pane.append(cond_el);
+    // main_pane.append(detail_pane);
 }
 
 function make_active(id, tablink) {
