@@ -71,5 +71,14 @@
 
     "Haze": "fog-night.png"
 
+    },
+    "emojis": {
+        "cloud": "☁",
+        "sun": "☀",
+        "partly-sunny": "🌤",
+        "partly-cloudy": "⛅",
+        "rain": "🌧",
+        "storm": "⛈",
+        "snow": "❄"
     }
 }

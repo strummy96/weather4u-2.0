@@ -478,6 +478,11 @@ function build_detail_section(period, hourly_data, y_scale_max) {
     p_title.textContent = period.name;
     p_title.classList.add("detail-period-title");
 
+    //short forecast
+    let short = document.createElement("div");
+    short.textContent = period.shortForecast;
+    short.style.textAlign = "center";
+
     // graph
     let graph_el = document.createElement("div");
     graph_el.id = "graph-" + period.number;
@@ -498,6 +503,7 @@ function build_detail_section(period, hourly_data, y_scale_max) {
     np_con.append(prev_btn, next_btn);
         
     detail_section.append(p_title);
+    detail_section.append(short);
     detail_section.append(graph_el);
     detail_section.append(np_con);
     detail_pane.append(detail_section);

@@ -36,6 +36,7 @@
 		get_wx_data();
 
 		setInterval(() => {get_wx_data()}, 60000)
+
 		
 	</script>
 	
@@ -65,4 +66,22 @@
 			</th>
 		</table>
 	</div>
+
+	<script>
+		let emojis = {
+        "cloud": "☁",
+        "sun": "☀",
+        "partly-sunny": "🌤",
+        "partly-cloudy": "⛅",
+        "rain": "🌧",
+        "storm": "⛈",
+        "snow": "❄"
+    	}
+
+		for(const [k,v] of Object.entries(emojis)){
+			let el = document.createElement("div");
+			el.textContent = v;
+			document.body.append(el);
+		}
+	</script>
 </body>
