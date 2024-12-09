@@ -796,9 +796,9 @@ async function update_data(new_lat, new_lon) {
             let y_scale_max = 1.3 * Math.max(ymax_prec, ymax_temp);
     
     
-            // conditions
-            let cond_text = document.querySelector("#cond-" + nPeriod.number);
-            cond_text.innerHTML = nPeriod.shortForecast;
+            // conditions - this has been removed
+            // let cond_text = document.querySelector("#cond-" + nPeriod.number);
+            // cond_text.innerHTML = nPeriod.shortForecast;
     
     
             // graph
@@ -808,10 +808,11 @@ async function update_data(new_lat, new_lon) {
             graph_div.innerHTML = "";
             hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
     
-            // detailed forecast
+            // detailed forecast - this has been removed
+            //
             // console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
-            let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
-            det_fc.textContent = nPeriod.detailedForecast;
+            // let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
+            // det_fc.textContent = nPeriod.detailedForecast;
         }    
     
         // update overview
@@ -842,7 +843,8 @@ async function update_data(new_lat, new_lon) {
     
         console.log("done updating data")
     } catch (e) {
-        alert(e)
+        console.log("Failed to update.");
+        console.log(e);
     }
     
 }
