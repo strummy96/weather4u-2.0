@@ -11,7 +11,13 @@ let dows = {
 let canv;
 let overview_chart;
 
-function overview(h_data) {
+function getImage() {
+    const img = new Image();
+    img.src = 'https://www.chartjs.org/chartjs-plugin-annotation/latest/favicon.png';
+    return img
+};
+
+async function overview(h_data) {
     let hourly_periods = h_data.properties.periods;
 
     // build chart
@@ -124,6 +130,20 @@ function overview(h_data) {
             }
         }
         prev_day = day;
+    };
+
+    console.log(seven_day_fc)
+    for (period of seven_day_fc.properties.periods){
+        console.log(period.name)
+        day_annotations.push({
+            type: 'label',
+            drawTime: 'afterDraw',
+            content: getImage(period.shortForecast),
+            width: 50,
+            height: 50,
+            xValue: 10,
+            yValue: 100
+        })
     }
 
 
@@ -133,25 +153,27 @@ function overview(h_data) {
             data: {
                 labels: times_pretty_with_days,
                 datasets: [{
-                    label: "Temp",
-                    data: temps,
-                    xAxisID: "x1",
-                    pointBackgroundColor: main_blue,
-                    hoverBackgroundColor: "yellow",
-                    borderColor: main_blue,
-                    hoverRadius: 10
+                        label: "Temp",
+                        data: temps,
+                        xAxisID: "x1",
+                        pointBackgroundColor: 'none',
+                        hoverBackgroundColor: "yellow",
+                        borderColor: main_blue,
+                        hoverRadius: 10,
+                        pointRadius: 0
                     },
                     {
-                    label: "Precip",
-                    data: chance_precips,
-                    xAxisID: "x1",
-                    type: "line",
-                    pointBackgroundColor: precip_blue,
-                    hoverBackgroundColor: "yellow",
-                    borderColor: precip_blue,
-                    hoverRadius: 10
+                        label: "Precip",
+                        data: chance_precips,
+                        xAxisID: "x1",
+                        type: "line",
+                        pointBackgroundColor: precip_blue,
+                        hoverBackgroundColor: "yellow",
+                        borderColor: precip_blue,
+                        hoverRadius: 10,
+                        pointRadius: 0
                     }
-            ]
+                ]
             },
             options: {
                 responsive: true,

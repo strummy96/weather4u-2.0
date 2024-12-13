@@ -1,15 +1,17 @@
+:root {
+    --background-blue: #274b69;
+    --background-grey: rgb(25,25,25);
+    --tile-background-color: rgb(50,50,50);
+}
+
 body {
     font-family: 'Work Sans', sans-serif;
     /* background-color: #4992d1; */
-    background-color: #274b69;
+    background-color: var(--background-grey);
     color: white;
     height: 100vh;
     margin: 0px;
 }
-
-/* .btn {
-    --bs-btn-bg: white;
-} */
 
 .tablink {
     padding: 10px;
@@ -51,7 +53,7 @@ a.selected {
     overflow: hidden;
     /* padding: 1%; */
     border-radius: 1vh;
-    border: 1px solid #89b1d4;
+    /* border: 1px solid #89b1d4; */
     /* background-color: #5483ac; */
     transition: background-color 0.2s ease;
 }
@@ -64,12 +66,19 @@ a.selected {
 .main-pane {
     position: relative;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: space-around;
     width: 100%;
     height: 100%;
+    background-color: var(--tile-background-color);
     /* transition: top 0.5s ease; */
+}
+
+.sub-pane {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
 }
 
 .detail-pane {
@@ -93,11 +102,11 @@ a.selected {
 }
 
 .pname {
-    position: absolute;
+    /* position: absolute;
     top: 50%;
     left: 0%;
-    transform: translateY(-50%); 
-    font-size: min(3vw, 20pt);
+    transform: translateY(-50%);  */
+    font-size: 16pt;
     white-space: nowrap;
 }
 
@@ -370,11 +379,11 @@ a.selected {
     } */
 
     .pname {
-        font-size: 4vw;
+        font-size: 14pt;
     }
 
     .temp-text {
-        font-size: 6vw;
+        font-size: 16pt;
     }
 
     .detailed-forecast {

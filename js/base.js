@@ -7,6 +7,11 @@ let h_data;
 let map;
 let select_map_point = {lat: undefined, lon: undefined}
 let current_det_page_num;
+let seven_day_fc;
+
+const meteocons = await get_mcons();
+const meteocons_day = meteocons["meteocons_day"];
+const meteocons_night = meteocons["meteocons_night"];
 
 const day_abr = {
     Monday: "Mon",
@@ -45,9 +50,6 @@ async function fetch_data(url) {
 async function build_layout(coords) {
     // coords - returned from navigator.geolocation.getCurrentPosition()
 
-    meteocons = await get_mcons();
-    meteocons_day = meteocons["meteocons_day"];
-    meteocons_night = meteocons["meteocons_night"];
 
     // GRIDPOINTS
     // WAKEFIELD RI - 64,46
@@ -77,16 +79,14 @@ async function build_layout(coords) {
     // hourly forecast data
     hourly_url = points_resp.properties.forecastHourly;
     h_data = await fetch_data(hourly_url);
-    // const h_data = await h_resp.json();
     console.log("hourly forecast data");
     console.log(h_data);
     
     // forecast data
-    const data = await fetch_data(fc_url);
-    // const data = await resp.json();
+    seven_day_fc = await fetch_data(fc_url);
     console.log("7 day forecast data");
-    console.log(data);
-    let periods = data.properties.periods;
+    console.log(seven_day_fc);
+    let periods = seven_day_fc.properties.periods;
 
     // loop through all 14 periods
     for (const [index, period] of periods.entries()){
@@ -98,8 +98,8 @@ async function build_layout(coords) {
             let period_name = period.name;
 
             // temps for max and min
-            let temps = data.properties.periods.map(({temperature}) => temperature);
-            let chance_precips = data.properties.periods.map(
+            let temps = seven_day_fc.properties.periods.map(({temperature}) => temperature);
+            let chance_precips = seven_day_fc.properties.periods.map(
                 ({probabilityOfPrecipitation}) => probabilityOfPrecipitation.value);
             
             // get max values to set scale range - want this to be the same for side-by-side periods
@@ -158,9 +158,7 @@ async function build_layout(coords) {
             // break ////////////////////////////
         }
     }
-
-    // overview
-    overview(h_data);
+    console.log("build_layout done")
 }
 
 async function build_page() {
@@ -172,28 +170,30 @@ async function build_page() {
             console.log(success.coords)
 
             await build_layout(success.coords);
+
+            // build map
+            map = L.map('map-div').setView([39, -95], 3.5);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+        
+            // event listeners for dropdown
+            let dropdown_items = document.querySelectorAll(".dropdown-item");
+            dropdown_items.forEach((el) => {
+                el.addEventListener("click", function(e){
+                    let dropdown_button = document.querySelector("#menu-dropdown");
+                    dropdown_button.textContent = el.textContent;
+                })
+            });
+
+            overview(h_data);
+        
+            close_loading_screen();
         } else {
             console.log(error)
         }
     })
-
-    // build map
-    map = L.map('map-div').setView([39, -95], 3.5);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-
-    // event listeners for dropdown
-    let dropdown_items = document.querySelectorAll(".dropdown-item");
-    dropdown_items.forEach((el) => {
-        el.addEventListener("click", function(e){
-            let dropdown_button = document.querySelector("#menu-dropdown");
-            dropdown_button.textContent = el.textContent;
-        })
-    })
-
-    close_loading_screen();
 }
 
 function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_night) {
@@ -270,8 +270,8 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     temp_text.innerHTML = period.temperature + "&deg;";
 
     // appending ren - leaving out bar for now
-    temp_wrapper.append(temp_text);
-    temp_el.append(temp_wrapper);  
+    // temp_wrapper.append(temp_text);
+    // temp_el.append(temp_text);  
 
     // icon
     icon_el = document.createElement("div");
@@ -339,9 +339,15 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
 
     // add period name, icon, temp, cond to main pane
     main_pane.append(pname_con);
-    main_pane.append(icon_el);
-    main_pane.append(temp_el);
     
+    let sub_pane = document.createElement("div");
+    sub_pane.classList.add("sub-pane");
+    // sub_pane.append(icon_el);
+    sub_pane.append(temp_text);
+    temp_bar_con.append(temp_bar);
+    sub_pane.append(temp_bar_con);
+    
+    main_pane.append(sub_pane);
     parent_el.append(main_pane);
 
     // let detail_pane = document.createElement("div");
