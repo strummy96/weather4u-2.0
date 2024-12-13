@@ -9,10 +9,6 @@ let select_map_point = {lat: undefined, lon: undefined}
 let current_det_page_num;
 let seven_day_fc;
 
-const meteocons = await get_mcons();
-const meteocons_day = meteocons["meteocons_day"];
-const meteocons_night = meteocons["meteocons_night"];
-
 const day_abr = {
     Monday: "Mon",
     Tuesday: "Tues",
@@ -134,21 +130,21 @@ async function build_layout(coords) {
             // period is night.
             if (period.isDaytime){
                 // build day pane
-                build_tile_section(pane_con_day, period, temps, meteocons_day, meteocons_night);
+                build_tile_section(pane_con_day, period, temps);
                 
                 // detail section
                 build_detail_section(period, h_data, y_scale_max)
 
                 // build night pane unless the day period is the last (number 14)
                 if(period.number < 14){
-                    build_tile_section(pane_con_night, periods[index + 1], temps, meteocons_day, meteocons_night);
+                    build_tile_section(pane_con_night, periods[index + 1], temps);
                     
                     // detail section
                     build_detail_section(periods[index + 1], h_data, y_scale_max)
                 };
             }
             else {
-                build_tile_section(pane_con_night, period, temps, meteocons_day, meteocons_night);
+                build_tile_section(pane_con_night, period, temps);
 
                 // detail section
                 build_detail_section(period, h_data, y_scale_max)
@@ -196,7 +192,7 @@ async function build_page() {
     })
 }
 
-function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_night) {
+function build_tile_section(parent_el, period, temps) {
 
     // get min and max temps
     let min_temp = Math.min.apply(null, temps);
@@ -277,7 +273,7 @@ function build_tile_section(parent_el, period, temps, meteocons_day, meteocons_n
     icon_el = document.createElement("div");
     icon_el.classList.add("icon");
     icon_el.id = "icon-" + period.number;
-    icon_el = build_icon(period, icon_el, meteocons_day, meteocons_night);
+    icon_el = build_icon(period, icon_el);
 
     // if(cha_prec_text > 0) {
     //     let icon_cha_prec = document.createElement("div");
@@ -374,14 +370,7 @@ function make_active(id, tablink) {
     new_active.classList.add("active");
 }
 
-async function get_mcons() {
-    // load meteocons
-    const m_resp =  await fetch("./json/icon_keys.json");
-    const meteocons = await m_resp.json();
-    return meteocons
-}
-
-function build_icon(period, icon_el, meteocons_day, meteocons_night) {
+function build_icon(period, icon_el) {
 
     icon_el.innerHTML = "";
 
@@ -393,8 +382,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
     if(single_icon){
         icon_img = document.createElement("img");
         icon_img.classList.add("icon-img");
-        icon_img.src = get_icon(period.shortForecast, period.isDaytime,
-                                meteocons_day, meteocons_night);
+        icon_img.src = get_icon(period.shortForecast, period.isDaytime);
 
     } else {
         // container for 2 icons. full height of row, let the width set automatically 
@@ -416,7 +404,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
 
         let icon_top_1 = document.createElement("img");
         icon_top_1.classList.add("icon-img", "icon-img-multiple");
-        icon_top_1.src = get_icon(cond_1, period.isDaytime, meteocons_day, meteocons_night);
+        icon_top_1.src = get_icon(cond_1, period.isDaytime);
         icon_img_top.append(icon_top_1);
 
         let icon_img_bottom = document.createElement("div");
@@ -427,7 +415,7 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
         
         let icon_bot_2 = document.createElement("img");
         icon_bot_2.classList.add("icon-img", "icon-img-multiple");
-        icon_bot_2.src = get_icon(cond_2, period.isDaytime, meteocons_day, meteocons_night);
+        icon_bot_2.src = get_icon(cond_2, period.isDaytime);
         icon_img_bottom.append(icon_bot_2);
 
         icons_con.append(icon_img_top);
@@ -441,18 +429,18 @@ function build_icon(period, icon_el, meteocons_day, meteocons_night) {
     return icon_el;
 }
 
-function get_icon(shortForecast, isDaytime, meteocons_day, meteocons_night){
+function get_icon(shortForecast, isDaytime){
     if(isDaytime){
-        if (meteocons_day[shortForecast] != undefined) {
-            return "./meteocons/" + meteocons_day[shortForecast];
+        if (meteocons["meteocons_day"][shortForecast] != undefined) {
+            return "./meteocons/" + meteocons["meteocons_day"][shortForecast];
         }
         else {
             return "./meteocons/code-red.png"
         }
 
     } else {
-        if (meteocons_night[shortForecast] != undefined) {
-            return "./meteocons/" + meteocons_night[shortForecast];
+        if (meteocons["meteocons_night"][shortForecast] != undefined) {
+            return "./meteocons/" + meteocons["meteocons_night"][shortForecast];
         }
         else {
             return "./meteocons/code-red.png"
@@ -784,7 +772,7 @@ async function update_data(new_lat, new_lon) {
     
             // icon
             let icon_el = document.querySelector("#icon-" + nPeriod.number);
-            build_icon(nPeriod, icon_el, meteocons_day, meteocons_night);
+            build_icon(nPeriod, icon_el);
     
             // temperature
             let temp_text = document.querySelector("#temp-" + nPeriod.number);

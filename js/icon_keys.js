@@ -1,4 +1,4 @@
-{
+const meteocons = {
 "meteocons_day": {
     "Sunny": "clear-day.png",
     "Mostly Sunny": "clear-day.png",
@@ -19,6 +19,7 @@
     "Chance Rain Showers": "partly-cloudy-day-drizzle.png",
     "Rain Showers Likely": "rain.png",
     "Rain Showers": "rain.png",
+    "Rain": "rain.png",
 
     "Isolated Showers And Thunderstorms": "thunderstorms-day-rain.png",
     "Slight Chance Showers And Thunderstorms": "thunderstorms-day-rain.png",
@@ -55,6 +56,7 @@
     "Chance Rain Showers": "overcast-night-drizzle.png",
     "Rain Showers Likely": "rain.png",
     "Rain Showers": "rain.png",
+    "Rain": "rain.png",
 
     "Isolated Showers And Thunderstorms": "thunderstorms-night-rain.png",
     "Slight Chance Showers And Thunderstorms": "thunderstorms-night-rain.png",

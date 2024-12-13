@@ -11,9 +11,9 @@ let dows = {
 let canv;
 let overview_chart;
 
-function getImage() {
+function getImage(shortForecast) {
     const img = new Image();
-    img.src = 'https://www.chartjs.org/chartjs-plugin-annotation/latest/favicon.png';
+    img.src = get_icon(shortForecast, period.isDaytime);
     return img
 };
 
@@ -132,17 +132,16 @@ async function overview(h_data) {
         prev_day = day;
     };
 
-    console.log(seven_day_fc)
+    // add meteocon images to annotations
     for (period of seven_day_fc.properties.periods){
-        console.log(period.name)
         day_annotations.push({
             type: 'label',
             drawTime: 'afterDraw',
             content: getImage(period.shortForecast),
             width: 50,
             height: 50,
-            xValue: 10,
-            yValue: 100
+            xValue: 10.5 * period.number,
+            yValue: y_scale_max * 0.9
         })
     }
 
