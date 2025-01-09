@@ -23,6 +23,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="./js/icon_keys.js"></script>
     <script src="./js/annotations.js"></script>
+    <script src="./js/color_ramp.js"></script>
     <script src="./js/base.js"></script>
     <script src="./js/overview.js"></script>
 </head>
@@ -159,6 +160,10 @@
             <!-- choose on map -->
             <div>
               <button id="map-location-button" class="btn btn-light" onclick="map_select()">Choose on map</button>
+            </div>
+
+            <div id="recent-locs-list">
+              <div style="text-align: center;">Recent Locations</div>
             </div>
           </div>
           

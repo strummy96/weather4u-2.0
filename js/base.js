@@ -8,6 +8,18 @@ let map;
 let select_map_point = {lat: undefined, lon: undefined}
 let current_det_page_num;
 let seven_day_fc;
+let recent_locs = [];
+
+// get recent locs from cookie
+function cookies_as_json(){
+    let cooks = document.cookie.split("; ");
+    let cookies_json = {}
+    for (let c of cooks){
+        let items = c.split('=');
+        cookies_json[items[0]] = items[1]
+    }
+    return cookies_json
+};
 
 const day_abr = {
     Monday: "Mon",
@@ -184,6 +196,22 @@ async function build_page() {
             });
 
             overview(h_data);
+            
+            cookie_json = JSON.parse(cookies_as_json().recent_locs);
+            recent_locs = cookie_json == undefined ? [] : cookie_json;
+            console.log(recent_locs);
+
+            // populate recent locations list
+            let locs_list = document.querySelector("#recent-locs-list");
+            for (loc of recent_locs) {
+                let item = document.createElement('div');
+                item.classList.add("locs-list-item");
+                item.textContent = loc.city + ', ' + loc.state;
+                item.addEventListener("click", function(e) {
+                    update_data(loc.lat, loc.lon)
+                });
+                locs_list.append(item)
+            }
         
             close_loading_screen();
         } else {
@@ -219,12 +247,11 @@ function build_tile_section(parent_el, period, temps) {
     pname_el.id = "period-name-" + period.number;
     pname_el.classList.add("pname");
 
+    // abbreviate day names
     re = new RegExp(Object.keys(day_abr).join("|"),"gi"); 
     pname_el.textContent = period.name.replace(re, function(matched){
         return day_abr[matched];
       });
-
-    pname_el.style.padding = "5px";
 
     pname_con.append(pname_el);
     
@@ -235,6 +262,7 @@ function build_tile_section(parent_el, period, temps) {
 
     // wrapper for bar and temp
     let temp_wrapper = document.createElement("div");
+    temp_wrapper.classList.add("temp_wrapper");
     temp_wrapper.style.width = "100%";
     temp_wrapper.style.height = "100%";
     temp_wrapper.style.display = "flex";
@@ -245,10 +273,7 @@ function build_tile_section(parent_el, period, temps) {
 
     // temp_bar container
     let temp_bar_con = document.createElement("div");
-    temp_bar_con.style.backgroundColor = "#f5f5f5";
-    temp_bar_con.style.width = "100%";
-    temp_bar_con.style.height = "10px";
-    temp_bar_con.style.borderRadius = "25px";
+    temp_bar_con.classList.add('temp-bar-con');
     
     // temp bar
     let temp_bar = document.createElement("div");
@@ -257,17 +282,13 @@ function build_tile_section(parent_el, period, temps) {
     temp_bar.style.width = String(scaled_bar_width) + "%";
     temp_bar.style.height = "100%";
     temp_bar.style.borderRadius = "25px";
-    // temp_bar.style.backgroundColor = getColor(period.temperature + 20);
+    temp_bar.style.backgroundColor = getColor(period.temperature + 20);
 
     // temperature text
     let temp_text = document.createElement("div");
     temp_text.id = "temp-" + period.number;
     temp_text.classList.add("temp-text");
     temp_text.innerHTML = period.temperature + "&deg;";
-
-    // appending ren - leaving out bar for now
-    // temp_wrapper.append(temp_text);
-    // temp_el.append(temp_text);  
 
     // icon
     icon_el = document.createElement("div");
@@ -336,14 +357,12 @@ function build_tile_section(parent_el, period, temps) {
     // add period name, icon, temp, cond to main pane
     main_pane.append(pname_con);
     
-    let sub_pane = document.createElement("div");
-    sub_pane.classList.add("sub-pane");
-    // sub_pane.append(icon_el);
-    sub_pane.append(temp_text);
+    temp_wrapper.append(icon_el);
+    temp_wrapper.append(temp_text);
     temp_bar_con.append(temp_bar);
-    sub_pane.append(temp_bar_con);
+    temp_wrapper.append(temp_bar_con);
     
-    main_pane.append(sub_pane);
+    main_pane.append(temp_wrapper);
     parent_el.append(main_pane);
 
     // let detail_pane = document.createElement("div");
@@ -374,10 +393,8 @@ function build_icon(period, icon_el) {
 
     icon_el.innerHTML = "";
 
-    let single_icon = true;
-    if (period.shortForecast.includes("then")){
-        single_icon = false;
-    }
+    let single_icon = period.shortForecast.includes("then") ?
+     false : true;
     let icon_img;
     if(single_icon){
         icon_img = document.createElement("img");
@@ -791,8 +808,9 @@ async function update_data(new_lat, new_lon) {
     
     
             // conditions
-            let cond_text = document.querySelector("#cond-" + nPeriod.number);
-            cond_text.innerHTML = nPeriod.shortForecast;
+            // console.log(nPeriod.number)
+            // let cond_text = document.querySelector("#cond-" + nPeriod.number);
+            // cond_text.innerHTML = nPeriod.shortForecast;
     
     
             // graph
@@ -804,8 +822,8 @@ async function update_data(new_lat, new_lon) {
     
             // detailed forecast
             // console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
-            let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
-            det_fc.textContent = nPeriod.detailedForecast;
+            // let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
+            // det_fc.textContent = nPeriod.detailedForecast;
         }    
     
         // update overview
@@ -832,10 +850,22 @@ async function update_data(new_lat, new_lon) {
                 console.log("Another error:", e);
                 loc_label.textContent = "[location]"
             }
-        }
+        };
+
+        // add new location to recent_locs list
+        recent_locs.push({
+            lat: new_lat,
+            lon: new_lon,
+            city: new_points_data.properties.relativeLocation.properties.city,
+            state: new_points_data.properties.relativeLocation.properties.state
+        });
+
+        // add to recent_locs cookie
+        document.cookie = "recent_locs=" + JSON.stringify(recent_locs);
     
         console.log("done updating data")
     } catch (e) {
+        console.error(e);
         alert(e)
     }
     

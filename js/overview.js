@@ -117,7 +117,7 @@ async function overview(h_data) {
                     type: 'box',
                     drawTime: "beforeDatasetsDraw",
                     xMin: xMin,
-                    xMax: xMin + 24,
+                    xMax: xMin + 23,
                     yMin: 0,
                     yMax: y_scale_max,
                     backgroundColor: "#69686840",
@@ -134,6 +134,12 @@ async function overview(h_data) {
 
     // add meteocon images to annotations
     for (period of seven_day_fc.properties.periods){
+        
+        let x;
+        if(period.number == 1) {
+            x = 0
+        }
+        
         day_annotations.push({
             type: 'label',
             drawTime: 'afterDraw',
@@ -195,6 +201,7 @@ async function overview(h_data) {
                             autoSkip: false
                           }
                         },
+                    // day name labels
                     x2:{
                           type:"category",
                           gridLines: {
@@ -205,7 +212,7 @@ async function overview(h_data) {
                                 let label = this.getLabelForValue(value);
                                 var hour = String(label).split(";")[0];
                                 var day = String(label).split(";")[1];
-                              if(hour === "2pm"){
+                              if(hour === "12pm"){
                                 return day;
                               }else{
                                 return "";
