@@ -827,7 +827,8 @@ async function update_data(new_lat, new_lon) {
             graph_div.innerHTML = "";
             hourly_chart(new_h_periods.properties.periods, nPeriod, y_scale_max);
     
-            // detailed forecast
+            // detailed forecast - this has been removed
+            //
             // console.log("det_fc query: ", "#detail-" + nPeriod.number + " #detailed-forecast")
             // let det_fc = document.querySelector("#detail-" + nPeriod.number + " .detailed-forecast");
             // det_fc.textContent = nPeriod.detailedForecast;
@@ -872,7 +873,6 @@ async function update_data(new_lat, new_lon) {
     
         console.log("done updating data")
     } catch (e) {
-        console.error(e);
         alert(e)
     }
     
