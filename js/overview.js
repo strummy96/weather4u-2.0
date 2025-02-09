@@ -146,11 +146,7 @@ async function overview(h_data) {
         let period_0 = h_data.properties.periods[0]
         let d = new Date(period_0.startTime);
         let hour = d.getHours();
-        console.log('period', period.number)
-        console.log("hour", hour);
         let diff = hour < 12 ? 12 - hour : 24 - hour;
-        console.log('diff:', diff)
-        console.log('x', 12 * (period.number - 1) + diff)
         
         day_annotations.push({
             type: 'label',
@@ -205,10 +201,11 @@ async function overview(h_data) {
                                 var hour = String(label).split(";")[0];
                                 var day = String(label).split(";")[1];
                                 if(["9am", "12pm", "3pm", "6pm", "9pm",
-                                    "12am", "3am", "6am"].includes(hour))
+                                    "12am", "3am", "6am"].includes(hour) &&
+                                window.innerWidth > 800)
                                     {return hour}
                                 else{
-                                    return '';
+                                    return null;
                                 }
                             },
                             autoSkip: false
@@ -252,6 +249,7 @@ async function overview(h_data) {
                                 color: function(context) {
                                     return context.dataset.borderColor;
                                 },
+                                borderRadius: 5,
                                 anchor: "center",
                                 align: "end",
                                 offset: 2,
@@ -278,10 +276,10 @@ async function overview(h_data) {
                                         if (value == max_24h && value != previous_temp){
                                             return value + "°";
                                         }else{
-                                            return ''
+                                            return null
                                         };
                                     }
-                                    else{return '' }
+                                    else{return null }
                                 },
                             },
                             low: {
@@ -314,10 +312,10 @@ async function overview(h_data) {
                                         if (value == min_24h && value != previous_temp){
                                             return value + "°";
                                         }else{
-                                            return ''
+                                            return null
                                         };
                                     }
-                                    else{return '' }
+                                    else{return null }
                                 },
                             },
                             high_prec: {
@@ -351,10 +349,10 @@ async function overview(h_data) {
                                             labeled = true;
                                             return value + "%";
                                         }else{
-                                            return ''
+                                            return null
                                         };
                                     }
-                                    else{return '' }
+                                    else{return null }
                                 },
                             },
                             low_prec: {
@@ -388,10 +386,10 @@ async function overview(h_data) {
                                             labeled = true;
                                             return value + "%";
                                         }else{
-                                            return ''
+                                            return null
                                         };
                                     }
-                                    else{return '' }
+                                    else{return null }
                                 },
                             }
                         }
