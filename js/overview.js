@@ -139,6 +139,18 @@ async function overview(h_data) {
         if(period.number == 1) {
             x = 0
         }
+
+        // position the annotation at the center of each period - or the midpoint of remining time in the 
+        // current period. the first hourly period tells us how many hours between now and the center
+        // of the next period.
+        let period_0 = h_data.properties.periods[0]
+        let d = new Date(period_0.startTime);
+        let hour = d.getHours();
+        console.log('period', period.number)
+        console.log("hour", hour);
+        let diff = hour < 12 ? 12 - hour : 24 - hour;
+        console.log('diff:', diff)
+        console.log('x', 12 * (period.number - 1) + diff)
         
         day_annotations.push({
             type: 'label',
@@ -146,7 +158,7 @@ async function overview(h_data) {
             content: getImage(period.shortForecast),
             width: 50,
             height: 50,
-            xValue: 10.5 * period.number,
+            xValue: 12 * (period.number - 1) + diff,
             yValue: y_scale_max * 0.9
         })
     }
@@ -184,6 +196,7 @@ async function overview(h_data) {
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
+                    // hour axis
                     x1:{
                           type:"category",
                           ticks:{
@@ -201,7 +214,7 @@ async function overview(h_data) {
                             autoSkip: false
                           }
                         },
-                    // day name labels
+                    // day axis
                     x2:{
                           type:"category",
                           gridLines: {

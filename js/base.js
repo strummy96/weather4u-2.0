@@ -197,7 +197,11 @@ async function build_page() {
 
             overview(h_data);
             
-            cookie_json = JSON.parse(cookies_as_json().recent_locs);
+            let recent_locs_cookie = cookies_as_json().recent_locs;
+            let cookie_json;
+            if(recent_locs_cookie != undefined) {
+                cookie_json = JSON.parse(cookies_as_json().recent_locs)
+            };
             recent_locs = cookie_json == undefined ? [] : cookie_json;
             console.log(recent_locs);
 
@@ -447,6 +451,9 @@ function build_icon(period, icon_el) {
 }
 
 function get_icon(shortForecast, isDaytime){
+    if(shortForecast.toUpperCase().includes("SNOW")){
+        return "./meteocons/snowflake.png"
+    }
     if(isDaytime){
         if (meteocons["meteocons_day"][shortForecast] != undefined) {
             return "./meteocons/" + meteocons["meteocons_day"][shortForecast];

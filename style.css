@@ -401,6 +401,7 @@ a.selected {
     width: 70%;
     height: 10px;
     border-radius: 25px;
+    margin: 0px 5px;
 }
 
 @media (width <= 800px) {
@@ -438,7 +439,7 @@ a.selected {
     }
 
     .temp-text {
-        font-size: 16pt;
+        font-size: 12pt;
     }
 
     .detailed-forecast {
@@ -456,5 +457,10 @@ a.selected {
     #sub-header {
         width: 100%;
         margin: 10px 0;
+    }
+
+    .temp-bar-con {
+        flex: 2 1 auto;
+        width: auto;        
     }
 }
