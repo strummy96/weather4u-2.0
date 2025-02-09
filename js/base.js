@@ -873,7 +873,8 @@ async function update_data(new_lat, new_lon) {
     
         console.log("done updating data")
     } catch (e) {
-        alert(e)
+        console.log("Failed to update.");
+        console.log(e);
     }
     
 }
