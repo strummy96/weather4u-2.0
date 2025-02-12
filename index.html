@@ -48,6 +48,7 @@
               <li><a class="dropdown-item selected" onclick="make_active('#seven-day-tab', this)" id="seven-day-dropdown-item">7-day Forecast</a></li>
               <li><a class="dropdown-item" onclick="make_active('#overview-tab', this)">Overview</a></li>
               <li><a class="dropdown-item" onclick="make_active('#afd-tab', this)">Forecast Discussion</a></li>
+              <li><a class="dropdown-item" onclick="make_active('#hourly-table-tab', this)">Hourly Table</a></li>
               <li><a class="dropdown-item" href="wx_stn.html">wx_stn</a></li>
               <li><a class="dropdown-item" href="models.html">Models</a></li>
             </ul>
@@ -168,6 +169,17 @@
             </div>
           </div>
           
+        </div>
+
+        <div id="hourly-table-tab" class="tabcontent">
+          <table>
+            <tr>
+              <th>Hour</th>
+              <th>Temp (F)</th>
+              <th>Precip %</th>
+              <th>Short Forecast</th>
+            </tr>
+          </table>
         </div>
     </div>
 

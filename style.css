@@ -404,6 +404,18 @@ a.selected {
     margin: 0px 5px;
 }
 
+#hourly-table-tab td, th {
+    padding: 0px 8px;
+}
+
+#hourly-table-tab table {
+    width: 100%;
+}
+
+.right-align {
+    text-align: right;
+}
+
 @media (width <= 800px) {
     #details {
         width: 100%;

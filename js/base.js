@@ -215,7 +215,9 @@ async function build_page() {
                     update_data(loc.lat, loc.lon)
                 });
                 locs_list.append(item)
-            }
+            };
+
+            hourly_table(h_data);
         
             close_loading_screen();
         } else {
@@ -1277,4 +1279,30 @@ async function enter_city_go_button() {
     // switch to 7-day tab
     let seven_day_tablink = document.querySelector("#seven-day-dropdown-item");
     make_active("#seven-day-tab", seven_day_tablink);
+};
+
+function hourly_table(data) {
+    let table = document.querySelector("#hourly-table-tab table");
+
+    for (period of data.properties.periods) {
+        let hour = document.createElement('td');
+        hour.textContent = period.startTime.slice(11,13);
+        hour.classList.add("right-align");
+
+        let temp = document.createElement('td');
+        temp.textContent = period.temperature;
+        temp.classList.add("right-align");
+
+        let precip = document.createElement('td');
+        precip.textContent = period.probabilityOfPrecipitation.value;
+        precip.classList.add("right-align");
+
+        let sf = document.createElement('td');
+        sf.textContent = period.shortForecast;
+        
+        let row = document.createElement('tr');
+        row.append(hour, temp, precip, sf);
+        
+        table.append(row)
+    }
 }
