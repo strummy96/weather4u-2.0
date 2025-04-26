@@ -10,6 +10,7 @@ let dows = {
 
 let canv;
 let overview_chart;
+let times_pretty_with_days = [];
 
 function getImage(shortForecast) {
     const img = new Image();
@@ -77,7 +78,6 @@ async function overview(h_data) {
     }
 
     // labels so we can have days labeled too
-    let times_pretty_with_days = [];
     for(let [index, time] of times_pretty.entries()){
         // console.log(index)
         // console.log(time)
@@ -403,7 +403,19 @@ async function overview(h_data) {
                         text: "Hourly Forecast"
                     },
                     tooltip: {
-                        position: "nearest"
+                        position: "nearest",
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                return tooltipItems[0].label.replace(';',' ')
+                            },
+                            afterTitle: function(tooltipItems) {
+                                // return the index of the data point. this is the same for all datasets.
+                                let idx = tooltipItems[0].dataIndex;
+
+                                // get conditions for this datapoint
+                                return h_data.properties.periods[idx].shortForecast
+                            }
+                        }
                     },
                     annotation: {
                         annotations: day_annotations

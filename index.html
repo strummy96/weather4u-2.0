@@ -42,11 +42,11 @@
           <!-- header dropdown -->
           <div class="dropdown">
             <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu-dropdown">
-              7-Day Forecast
+              Overview
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item selected" onclick="make_active('#seven-day-tab', this)" id="seven-day-dropdown-item">7-day Forecast</a></li>
-              <li><a class="dropdown-item" onclick="make_active('#overview-tab', this)">Overview</a></li>
+              <li><a class="dropdown-item selected" onclick="make_active('#overview-tab', this)">Overview</a></li>
+              <li><a class="dropdown-item" onclick="make_active('#seven-day-tab', this)" id="seven-day-dropdown-item">7-day Forecast</a></li>
               <li><a class="dropdown-item" onclick="make_active('#afd-tab', this)">Forecast Discussion</a></li>
               <li><a class="dropdown-item" onclick="make_active('#hourly-table-tab', this)">Hourly Table</a></li>
               <li><a class="dropdown-item" href="wx_stn.html">wx_stn</a></li>
@@ -71,7 +71,7 @@
       <img src="spinner.gif" alt="Spinning loading gif" id="loading-screen-spinner">
     </div>
     <div id="tabs-container">
-      <div id="seven-day-tab" class="tabcontent active">
+      <div id="seven-day-tab" class="tabcontent">
           <div id="seven-day">
               <div id="period-list">
                 </div>
@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <div id="overview-tab" class="tabcontent">
+        <div id="overview-tab" class="tabcontent active">
             <div id="overview">
                 
             </div>
