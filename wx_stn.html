@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <head>
 	<meta charset="utf-8"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<script>
 		async function get_wx_data(){
@@ -13,23 +14,23 @@
 			document.title = d[0].tempf + '° ' + d[0].humidity + 
 			'% - ' + d[0].tempinf + '° ' + d[0].humidityin + '%';
 
-			// table
-			//
-			// clear table
-			let table = document.querySelector("#tbl");
-			table.innerHTML = "";
+			//populate display
+			let temp_in = document.querySelector("#temp_in");
+			let hum_in = document.querySelector("#hum_in");
+			let temp_out = document.querySelector("#temp_out");
+			let hum_out = document.querySelector("#hum_out");
 
-			// fill in new data
-			for (const [key, value] of Object.entries(d[0])){
-				let tr = document.createElement('tr');
-				let td_key = document.createElement('td');
-				let td_value = document.createElement('td');
-				td_key.textContent = key;
-				td_value.textContent = value;
-				tr.append(td_key, td_value);
-				tbl.append(tr);
-			}
-			console.log(typeof(d[0]))
+			temp_in.textContent = d[0].tempinf + '°';
+			hum_in.textContent = d[0].humidityin + '%';
+			temp_out.textContent = d[0].tempf + '°';
+			hum_out.textContent = d[0].humidity + '%';
+
+			document.querySelector("#wind-speed").textContent = d[0].windspeedmph + " mph";
+
+			document.querySelector("#event-rain").textContent = d[0].eventrainin + " in";
+			document.querySelector("#hourly-rain").textContent = d[0].hourlyrainin + " in";
+
+
 			console.log("data updated", d[0]);
 		};
 
@@ -41,10 +42,18 @@
 	</script>
 	
 	<style>
+		body {
+			font-family: Courier;
+			background-color: #242424;
+			color: white;
+		}
 		table, th, td {
 			border: 1px solid black;
 			border-collapse: collapse;
 			padding: 5px;
+		}
+		div {
+			border: 1px solid black;
 		}
 
 		#con {
@@ -53,21 +62,75 @@
 			-webkit-column-count:2;
 			width: 50%;
 		}
+
+		.flex-column {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.flex-row {
+			display: flex;
+			flex-direction: row;
+			flex-grow: 1;
+			justify-content: center;
+		}
+
+		.big-text {
+			font-size: min(10vw, 60pt);
+		}
+		.med-text {
+			font-size: min(5vw, 30pt);
+		}
+		.small-text {
+			font-size: min(2vw, 15pt);
+		}
+
+		.text {
+			padding: 1vw;
+		}
+
+		#outside {
+			background-color: #3a6082;
+		}
+		#inside {background-color: #805025;}
+		#event-rain-con, #hourly-rain-con {background-color: #354878;}
+		#wind-speed-con {background-color: rgb(92, 92, 92);}
 		</style>
 </head>
 
 <body>
-	<button onclick=get_wx_data()>get data</button>
-	<div id="con">
-		<table id="tbl">
-			<th>
-				<th>Parameter</th>
-				<th>Value</th>
-			</th>
-		</table>
-	</div>
+	 <div style="width: 80vw">
+		<div id="top-row" class="flex-row">
+			<div id="outside" class="flex-column">
+				<div class="small-text">Outside</div>
+				<div id="temp_out" class="big-text text">--&deg;</div>
+				<div id="hum_out" class="med-text text">--%</div>
+			</div>
+			<div id="inside" class="flex-column">
+				<div class="small-text">Inside</div>
+				<div id="temp_in" class="big-text text">--&deg;</div>
+				<div id="hum_in" class="med-text text">--%</div>
+			</div>
+		</div>
+		<div id="bottom-row" class="flex-row">
+			<div id="event-rain-con">
+				<div class="small-text text">Event Rain</div>
+				<div id="event-rain" class="med-text text"></div>
+			</div>
+			<div id="hourly-rain-con">
+				<div class="small-text text">Hourly Rain</div>
+				<div id="hourly-rain" class="med-text text"></div>
+			</div>
+		</div>
+		<div class="flex-row">
+			<div id="wind-speed-con" class="flex-column">
+				<div class="small-text text">Wind Speed</div>
+				<div id="wind-speed" class="med-text text"></div>
+			</div>
+		</div>
+	 </div>
 
-	<script>
+	<!-- <script>
 		let emojis = {
         "cloud": "☁",
         "sun": "☀",
@@ -83,5 +146,5 @@
 			el.textContent = v;
 			document.body.append(el);
 		}
-	</script>
+	</script> -->
 </body>
