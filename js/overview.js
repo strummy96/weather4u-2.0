@@ -18,6 +18,10 @@ function getImage(shortForecast) {
     return img
 };
 
+function toggle_layer(chart, layer_name) {
+
+}
+
 async function overview(h_data) {
     let hourly_periods = h_data.properties.periods;
 
@@ -157,8 +161,10 @@ async function overview(h_data) {
             xValue: 12 * (period.number - 1) + diff,
             yValue: y_scale_max * 0.9
         })
-    }
+    };
 
+    // wind data
+    let wind = h_data.properties.periods.map((p) => Number(p.windSpeed.replace(" mph", "")));
 
     overview_chart = new Chart(canv,
         {
@@ -183,6 +189,17 @@ async function overview(h_data) {
                         pointBackgroundColor: precip_blue,
                         hoverBackgroundColor: "yellow",
                         borderColor: precip_blue,
+                        hoverRadius: 10,
+                        pointRadius: 0
+                    },
+                    {
+                        label: "Wind",
+                        data: wind,
+                        xAxisID: "x1",
+                        type: "line",
+                        pointBackgroundColor: "grey",
+                        hoverBackgroundColor: "yellow",
+                        borderColor: "grey",
                         hoverRadius: 10,
                         pointRadius: 0
                     }
@@ -396,7 +413,7 @@ async function overview(h_data) {
                         
                     },
                     legend: {
-                        display: false
+                        display: true
                     },
                     title: {
                         display: false,
@@ -421,7 +438,7 @@ async function overview(h_data) {
                         annotations: day_annotations
                     }
                 },
-                animation: true,
+                animation: false,
                 layout: {
                     padding: {
                         top: 10
