@@ -1287,7 +1287,7 @@ function hourly_table(data) {
     for (period of data.properties.periods) {
         let hour = document.createElement('td');
         hour.textContent = period.startTime.slice(11,13);
-        hour.classList.add("right-align");
+        // hour.classList.add("right-align");
 
         let temp = document.createElement('td');
         temp.textContent = period.temperature;
@@ -1299,9 +1299,15 @@ function hourly_table(data) {
 
         let sf = document.createElement('td');
         sf.textContent = period.shortForecast;
+
+        let icon = document.createElement('td');
+        let icon_img = document.createElement('img');
+        icon_img.src = period.icon;
+        icon_img.style.height = '40px';
+        icon.append(icon_img);
         
         let row = document.createElement('tr');
-        row.append(hour, temp, precip, sf);
+        row.append(hour, temp, precip, sf, icon);
         
         table.append(row)
     }

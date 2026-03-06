@@ -427,16 +427,23 @@ a.selected {
     margin: 0px 5px;
 }
 
+#hourly-table-tab {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+}
+
 #hourly-table-tab td, th {
     padding: 0px 8px;
 }
 
-#hourly-table-tab table {
+#hourly-table {
     width: 100%;
+    max-width: 800px
 }
 
 .right-align {
-    text-align: right;
+    text-align: center;
 }
 
 @media (width <= 800px) {
