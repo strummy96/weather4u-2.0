@@ -2,6 +2,9 @@
 <head>
 	<meta charset="utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/wx_stn.css">
+	<script src="js/wx_stn_chart.js"></script>
+	<script src="js/chart.js"></script>
 
 	<script>
 		async function get_wx_data(){
@@ -32,103 +35,54 @@
 
 
 			console.log("data updated", d[0]);
+			return d
 		};
 
-		get_wx_data();
+		(async () => {let stn_data = await get_wx_data(); build_chart(stn_data.reverse())})();
 
 		setInterval(() => {get_wx_data()}, 60000)
 
-		
 	</script>
-	
-	<style>
-		body {
-			font-family: Courier;
-			background-color: #242424;
-			color: white;
-		}
-		table, th, td {
-			border: 1px solid black;
-			border-collapse: collapse;
-			padding: 5px;
-		}
-		div {
-			border: 1px solid black;
-		}
-
-		#con {
-			column-count: 2;
-			-moz-column-count:2;
-			-webkit-column-count:2;
-			width: 50%;
-		}
-
-		.flex-column {
-			display: flex;
-			flex-direction: column;
-		}
-
-		.flex-row {
-			display: flex;
-			flex-direction: row;
-			flex-grow: 1;
-			justify-content: center;
-		}
-
-		.big-text {
-			font-size: min(10vw, 60pt);
-		}
-		.med-text {
-			font-size: min(5vw, 30pt);
-		}
-		.small-text {
-			font-size: min(2vw, 15pt);
-		}
-
-		.text {
-			padding: 1vw;
-		}
-
-		#outside {
-			background-color: #3a6082;
-		}
-		#inside {background-color: #805025;}
-		#event-rain-con, #hourly-rain-con {background-color: #354878;}
-		#wind-speed-con {background-color: rgb(92, 92, 92);}
-		</style>
 </head>
 
 <body>
-	 <div style="width: 80vw">
-		<div id="top-row" class="flex-row">
-			<div id="outside" class="flex-column">
-				<div class="small-text">Outside</div>
-				<div id="temp_out" class="big-text text">--&deg;</div>
-				<div id="hum_out" class="med-text text">--%</div>
+	<div class="flex-row">
+		<div id="dashboard">
+			<div id="top-row" class="flex-row dashboard-item">
+				<div id="outside" class="flex-column dashboard-item">
+					<div class="small-text text">Outside</div>
+					<div id="temp_out" class="big-text text">--&deg;</div>
+					<div id="hum_out" class="med-text text">--%</div>
+				</div>
+				<div id="inside" class="flex-column dashboard-item">
+					<div class="small-text text">Inside</div>
+					<div id="temp_in" class="big-text text">--&deg;</div>
+					<div id="hum_in" class="med-text text">--%</div>
+				</div>
 			</div>
-			<div id="inside" class="flex-column">
-				<div class="small-text">Inside</div>
-				<div id="temp_in" class="big-text text">--&deg;</div>
-				<div id="hum_in" class="med-text text">--%</div>
+			<div id="bottom-row" class="flex-row">
+				<div id="event-rain-con" class="dashboard-item">
+					<div class="small-text text">Event Rain</div>
+					<div id="event-rain" class="med-text text"></div>
+				</div>
+				<div id="hourly-rain-con" class="dashboard-item">
+					<div class="small-text text">Hourly Rain</div>
+					<div id="hourly-rain" class="med-text text"></div>
+				</div>
+			</div>
+			<div class="flex-row">
+				<div id="wind-speed-con" class="flex-column dashboard-item">
+					<div class="small-text text">Wind Speed</div>
+					<div id="wind-speed" class="med-text text"></div>
+				</div>
 			</div>
 		</div>
-		<div id="bottom-row" class="flex-row">
-			<div id="event-rain-con">
-				<div class="small-text text">Event Rain</div>
-				<div id="event-rain" class="med-text text"></div>
-			</div>
-			<div id="hourly-rain-con">
-				<div class="small-text text">Hourly Rain</div>
-				<div id="hourly-rain" class="med-text text"></div>
-			</div>
+
+		<div id="chart">
+			<canvas id="chart-container"></canvas>
 		</div>
-		<div class="flex-row">
-			<div id="wind-speed-con" class="flex-column">
-				<div class="small-text text">Wind Speed</div>
-				<div id="wind-speed" class="med-text text"></div>
-			</div>
-		</div>
-	 </div>
+	</div>
+	 
 
 	<!-- <script>
 		let emojis = {
