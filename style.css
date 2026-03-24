@@ -428,7 +428,6 @@ a.selected {
 }
 
 #hourly-table-tab {
-    display: flex;
     flex-direction: column;
     align-content: center;
 }

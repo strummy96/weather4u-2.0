@@ -1285,8 +1285,24 @@ function hourly_table(data) {
     let table = document.querySelector("#hourly-table-tab table");
 
     for (period of data.properties.periods) {
-        let hour = document.createElement('td');
-        hour.textContent = period.startTime.slice(11,13);
+
+        // get time from period.startTime
+        let date_ts = Date.parse(period.startTime);
+        let date = new Date(date_ts);
+        let hour24 = date.getHours() + 1;
+        let am_pm = "am";
+        let hour = hour24;
+        if(hour24 > 12){ hour = hour24 - 12; };
+        if(hour24 >= 12 && hour24 != 24){ am_pm = "pm"; };
+
+        let date_cell = document.createElement('td');
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        date_cell.textContent = [dayNames[date.getDay()] + " " + 
+                                (date.getMonth() + 1) + '/' + date.getDate()];
+        // date_cell.textContent = date.toLocaleDateString()
+
+        let hour_cell = document.createElement('td');
+        hour_cell.textContent = hour + am_pm;
         // hour.classList.add("right-align");
 
         let temp = document.createElement('td');
@@ -1307,7 +1323,7 @@ function hourly_table(data) {
         icon.append(icon_img);
         
         let row = document.createElement('tr');
-        row.append(hour, temp, precip, sf, icon);
+        row.append(date_cell, hour_cell, temp, precip, sf, icon);
         
         table.append(row)
     }
