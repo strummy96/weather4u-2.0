@@ -55,3 +55,9 @@ table, th, td {
 #chart {
     flex-grow: 1
 }
+
+@media (width < 800px) {
+    #wx-stn-con {
+        flex-direction: column;
+    }
+}

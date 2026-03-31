@@ -24,14 +24,43 @@ function build_chart(stn_data) {
                 {
                     label: "Temperature",
                     data: stn_data.map((x) => x.tempf),
-                    pointRadius: 0
+                    pointRadius: 0,
+                    borderColor: '#356ea1'
                 },
                 {
                     label: 'Wind (mph)',
                     data: stn_data.map((x) => x.windspeedmph),
-                    pointRadius: 0
+                    pointRadius: 0,
+                    borderColor: 'lightgrey'
+                },
+                {
+                    label: 'Wind Gust (mph)',
+                    data: stn_data.map((x) => x.windgustmph > x.windspeedmph ? x.windgustmph : null),
+                    // pointRadius: 0,
+                    type: 'scatter',
+                    pointBackgroundColor: 'grey'
+                },
+                {
+                    label: 'Humidity',
+                    data: stn_data.map((x) => x.humidity),
+                    pointRadius: 0,
+                    borderColor: '#59636b'
+                },
+                {
+                    label: 'Indoor Temp',
+                    data: stn_data.map((x) => x.tempinf),
+                    pointRadius: 0,
+                    borderColor: '#805025',
+                    hidden: true
                 }
             ]
+        },
+        options: {
+            interaction: {
+                mode: "nearest",
+                axis: "x",
+                intersect: false
+            }
         }
     })
 }
