@@ -8,7 +8,14 @@ let map;
 let select_map_point = {lat: undefined, lon: undefined}
 let current_det_page_num;
 let seven_day_fc;
-let recent_locs = [];
+            
+let recent_locs_cookie = cookies_as_json().recent_locs;
+let cookie_json;
+if(recent_locs_cookie != undefined) {
+    cookie_json = JSON.parse(cookies_as_json().recent_locs)
+};
+recent_locs = cookie_json == undefined ? [] : cookie_json;
+console.log(recent_locs);
 
 // get recent locs from cookie
 function cookies_as_json(){
@@ -167,6 +174,7 @@ async function build_layout(coords) {
         }
     }
     console.log("build_layout done")
+    return points_resp;
 }
 
 async function build_page() {
@@ -177,7 +185,26 @@ async function build_page() {
         if(success){
             console.log(success.coords)
 
-            await build_layout(success.coords);
+            let new_points_data = await build_layout(success.coords);
+            let new_city = new_points_data.properties.relativeLocation.properties.city;
+            let new_state = new_points_data.properties.relativeLocation.properties.state;
+
+            // add new location to recent_locs list
+            console.log(new_points_data)
+            let match = recent_locs.filter((x) => (x.city == new_city && x.state == new_state))
+            console.log(match)
+            if (match.length == 0) {
+                let new_loc = {
+                    lat: success.coords.latitude,
+                    lon: success.coords.longitude,
+                    city: new_city,
+                    state: new_state
+                };
+                recent_locs.push(new_loc);
+
+                // add to recent_locs cookie
+                document.cookie = "recent_locs=" + JSON.stringify(recent_locs);
+            };
 
             // build map
             map = L.map('map-div').setView([39, -95], 3.5);
@@ -196,23 +223,19 @@ async function build_page() {
             });
 
             overview(h_data);
-            
-            let recent_locs_cookie = cookies_as_json().recent_locs;
-            let cookie_json;
-            if(recent_locs_cookie != undefined) {
-                cookie_json = JSON.parse(cookies_as_json().recent_locs)
-            };
-            recent_locs = cookie_json == undefined ? [] : cookie_json;
-            console.log(recent_locs);
 
             // populate recent locations list
             let locs_list = document.querySelector("#recent-locs-list");
             for (loc of recent_locs) {
                 let item = document.createElement('div');
                 item.classList.add("locs-list-item");
+                item.id = loc.city + '-' + loc.state;
                 item.textContent = loc.city + ', ' + loc.state;
                 item.addEventListener("click", function(e) {
-                    update_data(loc.lat, loc.lon)
+                    let city = e.target.id.split('-')[0];
+                    let state = e.target.id.split('-')[1];
+                    let data = recent_locs.filter((x) => x.city == city && x.state == state)[0];
+                    update_data(data.lat, data.lon);
                 });
                 locs_list.append(item)
             };
@@ -863,17 +886,42 @@ async function update_data(new_lat, new_lon) {
         };
 
         // add new location to recent_locs list
-        recent_locs.push({
+        let new_loc = {
             lat: new_lat,
             lon: new_lon,
             city: new_points_data.properties.relativeLocation.properties.city,
             state: new_points_data.properties.relativeLocation.properties.state
-        });
+        };
+        let match = recent_locs.filter((x) => (x.city == new_loc.city && x.state == new_loc.state))
+        console.log(match)
+        if (match.length == 0) {
+            recent_locs.push(new_loc);
+
+            // add loc to list on change page
+            let locs_list = document.querySelector("#recent-locs-list");
+            let item = document.createElement('div');
+            item.classList.add("locs-list-item");
+            item.id = new_loc.city + '-' + new_loc.state;
+            item.textContent = new_loc.city + ', ' + new_loc.state;
+            item.addEventListener("click", function(e) {
+                let city = e.target.id.split('-')[0];
+                let state = e.target.id.split('-')[1];
+                let data = recent_locs.filter((x) => x.city == city && x.state == state)[0];
+                update_data(data.lat, data.lon);
+                let dropdown_item = document.querySelector("#overview-dropdown-item");
+                make_active("#overview-tab", dropdown_item)
+            });
+            locs_list.append(item)
+
+        };
 
         // add to recent_locs cookie
         document.cookie = "recent_locs=" + JSON.stringify(recent_locs);
     
-        console.log("done updating data")
+        console.log("done updating data");
+
+        let dropdown_item = document.querySelector("#overview-dropdown-item");
+        make_active("#overview-tab", dropdown_item)
     } catch (e) {
         console.log("Failed to update.");
         console.log(e);
@@ -1277,8 +1325,8 @@ async function enter_city_go_button() {
     close_loading_screen()
 
     // switch to 7-day tab
-    let seven_day_tablink = document.querySelector("#seven-day-dropdown-item");
-    make_active("#seven-day-tab", seven_day_tablink);
+    // let seven_day_tablink = document.querySelector("#seven-day-dropdown-item");
+    // make_active("#seven-day-tab", seven_day_tablink);
 };
 
 function hourly_table(data) {

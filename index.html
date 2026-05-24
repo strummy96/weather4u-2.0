@@ -45,7 +45,7 @@
               Overview
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item selected" onclick="make_active('#overview-tab', this)">Overview</a></li>
+              <li><a class="dropdown-item selected" onclick="make_active('#overview-tab', this)" id="overview-dropdown-item">Overview</a></li>
               <li><a class="dropdown-item" onclick="make_active('#seven-day-tab', this)" id="seven-day-dropdown-item">7-day Forecast</a></li>
               <li><a class="dropdown-item" onclick="make_active('#afd-tab', this)">Forecast Discussion</a></li>
               <li><a class="dropdown-item" onclick="make_active('#hourly-table-tab', this)">Hourly Table</a></li>
@@ -91,7 +91,7 @@
 
         <div id="overview-tab" class="tabcontent active">
           <div id="overview-con" class="flex-column">
-            <div id="overview"></div>
+            <canvas id="overview" class="chart-canvas-overview"></canvas>
           </div>
         </div>
 

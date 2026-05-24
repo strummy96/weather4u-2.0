@@ -10,7 +10,6 @@ let dows = {
 
 let canv;
 let overview_chart;
-let times_pretty_with_days = [];
 
 function getImage(shortForecast) {
     const img = new Image();
@@ -25,17 +24,11 @@ function toggle_layer(chart, layer_name) {
 async function overview(h_data) {
     let hourly_periods = h_data.properties.periods;
 
-    // build chart
-    let chart_div = document.querySelector("#overview");
-    chart_div.classList.add("overview-chart-container");
-    if(document.querySelector(".chart-canvas-overview") == undefined){
-        canv = document.createElement("canvas");
-        canv.classList.add("chart-canvas-overview");
-        chart_div.append(canv);
-    } else {
-        canv = document.querySelector(".chart-canvas-overview");
+    if (overview_chart) {
         overview_chart.destroy()
-    }
+    };
+
+    canv = document.querySelector("#overview");
 
     // set up datasets
 
@@ -43,6 +36,7 @@ async function overview(h_data) {
     let temps = [];
     let times = [];
     let days= [];
+    let times_pretty_with_days = [];
     let chance_precips = [];
     for(period of hourly_periods) {
         temps.push(period.temperature);

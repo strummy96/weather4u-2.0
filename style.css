@@ -387,7 +387,7 @@ a.selected {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 50%;
+    height: 100%;
 }
 
 .tabcontent {
