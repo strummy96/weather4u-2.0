@@ -38,6 +38,7 @@ async function overview(h_data) {
     let days= [];
     let times_pretty_with_days = [];
     let chance_precips = [];
+    let humidity = [];
     for(period of hourly_periods) {
         temps.push(period.temperature);
         times.push(period.startTime);
@@ -45,6 +46,8 @@ async function overview(h_data) {
                     else {return period.probabilityOfPrecipitation.value}})();
         // let cha_prec = period.probabilityOfPrecipitation.value;
         chance_precips.push(cha_prec);
+
+        humidity.push(period.relativeHumidity.value)
 
         let start_time = period.startTime;
         let date_ts = Date.parse(start_time);
@@ -194,6 +197,17 @@ async function overview(h_data) {
                         pointBackgroundColor: "grey",
                         hoverBackgroundColor: "yellow",
                         borderColor: "grey",
+                        hoverRadius: 10,
+                        pointRadius: 0
+                    },
+                    {
+                        label: "Humidity",
+                        data: humidity,
+                        xAxisID: "x1",
+                        type: "line",
+                        pointBackgroundColor: "#E4BCE6",
+                        hoverBackgroundColor: "yellow",
+                        borderColor: "#99869a",
                         hoverRadius: 10,
                         pointRadius: 0
                     }
