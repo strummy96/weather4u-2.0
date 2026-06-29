@@ -121,8 +121,8 @@ async function overview(h_data) {
                     xMax: xMin + 23,
                     yMin: 0,
                     yMax: y_scale_max,
-                    backgroundColor: "#69686840",
-                    borderColor: "#69686840"
+                    backgroundColor: "#45454540",
+                    borderColor: "#48484840"
                 })
                 draw_box = false;
             } else {
@@ -162,6 +162,9 @@ async function overview(h_data) {
 
     // wind data
     let wind = h_data.properties.periods.map((p) => Number(p.windSpeed.replace(" mph", "")));
+    
+    // dewpoint
+    let dewpoints = h_data.properties.periods.map((p) => p.dewpoint.value * (9/5) + 32)
 
     overview_chart = new Chart(canv,
         {
@@ -201,13 +204,13 @@ async function overview(h_data) {
                         pointRadius: 0
                     },
                     {
-                        label: "Humidity",
-                        data: humidity,
+                        label: "Dewpoint",
+                        data: dewpoints,
                         xAxisID: "x1",
                         type: "line",
-                        pointBackgroundColor: "#E4BCE6",
+                        pointBackgroundColor: "#978b97",
                         hoverBackgroundColor: "yellow",
-                        borderColor: "#99869a",
+                        borderColor: "#6c556e",
                         hoverRadius: 10,
                         pointRadius: 0
                     }
